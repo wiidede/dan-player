@@ -1,0 +1,94 @@
+{
+  "name": "vue-comp-starter",
+  "type": "module",
+  "version": "0.2.1",
+  "packageManager": "pnpm@8.15.4",
+  "description": "Vue component starter",
+  "author": "wiidede <wiixdede@gmail.com>",
+  "license": "MIT",
+  "funding": "https://wiidede.space/sponsor",
+  "homepage": "https://github.com/wiidede/vue-comp-starter#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wiidede/vue-comp-starter.git"
+  },
+  "bugs": "https://github.com/wiidede/vue-comp-starter/issues",
+  "keywords": [],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css"
+  },
+  "main": "./dist/index.umd.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite playground --mode play",
+    "dev:pkg": "vite playground",
+    "preview": "vite preview playground",
+    "build:play": "vite build && vite build playground",
+    "lint": "eslint .",
+    "prepublishOnly": "nr build",
+    "release": "pnpm lint && pnpm typecheck && pnpm build && bumpp",
+    "start": "esno src/index.ts",
+    "test": "vitest",
+    "typecheck": "vue-tsc --noEmit",
+    "prepare": "simple-git-hooks"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.8.1",
+    "@antfu/ni": "^0.21.12",
+    "@antfu/utils": "^0.7.7",
+    "@iconify-json/carbon": "^1.1.31",
+    "@types/jsdom": "^21.1.6",
+    "@types/node": "^20.11.26",
+    "@unocss/eslint-config": "^0.58.5",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.4",
+    "bumpp": "^9.4.0",
+    "defu": "^6.1.4",
+    "eslint": "^8.57.0",
+    "eslint-plugin-format": "^0.1.0",
+    "esno": "^4.7.0",
+    "jsdom": "^24.0.0",
+    "lint-staged": "^15.2.2",
+    "pnpm": "^8.15.4",
+    "rimraf": "^5.0.5",
+    "simple-git-hooks": "^2.10.0",
+    "typescript": "^5.4.2",
+    "unocss": "^0.58.5",
+    "unplugin-vue-components": "^0.26.0",
+    "vite": "^5.1.6",
+    "vite-plugin-dts": "^3.7.3",
+    "vite-plugin-inspect": "^0.8.3",
+    "vitest": "^1.3.1",
+    "vue": "^3.4.21",
+    "vue-tsc": "^2.0.6"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  }
+}

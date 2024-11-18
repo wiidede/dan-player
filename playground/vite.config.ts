@@ -1,23 +1,30 @@
 import path from 'node:path'
-import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
-import Inspect from 'vite-plugin-inspect'
+import AutoImport from 'unplugin-auto-import/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Component from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import Inspect from 'vite-plugin-inspect'
 import { VueCompStarterResolver } from '../src/resolver'
 
 export default defineConfig(({ mode }) => ({
   plugins: [
     Vue(),
+    AutoImport({
+      imports: ['vue', '@vueuse/core'],
+      resolvers: [ElementPlusResolver()],
+    }),
     Component({
-      resolvers: [VueCompStarterResolver({ name: 'Comp' })],
+      resolvers: [VueCompStarterResolver(), ElementPlusResolver()],
+      dirs: ['../src/components'],
     }),
     Unocss(),
     Inspect(),
     {
       name: 'blank',
       load(id) {
-        if (mode === 'play' && id.endsWith('vue-comp-starter/style.css'))
+        if (mode === 'play' && id.endsWith('dan-player/style.css'))
           return ''
       },
     },
@@ -25,7 +32,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: mode === 'play'
       ? [
-          { find: /^vue-comp-starter$/, replacement: path.resolve(__dirname, '../src/index.ts') },
+          { find: /^dan-player$/, replacement: path.resolve(__dirname, '../src/index.ts') },
+          { find: /^src\/lib\/utils$/, replacement: path.resolve(__dirname, '../src/lib/utils') },
         ]
       : [],
   },

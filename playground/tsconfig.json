@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "vue-comp-starter": ["src"]
+      "dan-player": ["src"]
     }
   }
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDark, useToggle } from '@vueuse/core'
+import { demoComments } from './demo-comments'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
@@ -7,11 +8,15 @@ const toggleDark = useToggle(isDark)
 
 <template>
   <main class="m-auto prose">
-    <h1 class="text-4xl font-serif dark:text-zinc-50">
-      Vue component starter
-    </h1>
+    <div class="flex items-center">
+      <img src="/favicon.svg" alt="Dan Player Logo" width="100px" height="100px">
+      <h1 class="text-4xl font-serif dark:text-zinc-50">
+        Dan Player
+      </h1>
+    </div>
     <div class="flex flex-col gap-12">
-      <Comp name="starter" />
+      <!-- TODO: 替换成mkv -->
+      <DanPlayer src="/demo.mp4" controls :comments="demoComments" />
     </div>
   </main>
   <footer class="m-auto mt8 prose">
@@ -19,18 +24,17 @@ const toggleDark = useToggle(isDark)
       <div i="carbon-sun dark:carbon-moon" />
     </button>
     <div class="flex gap4">
-      <a href="https://github.com/wiidede/vue-comp-starter" target="_blank">GitHub</a>
-      <a href="https://github.com/wiidede/vue-comp-starter/blob/main/playground/src/App.vue" target="_blank">Demo Source</a>
+      <a href="https://github.com/wiidede/dan-player" target="_blank">GitHub</a>
+      <a href="https://github.com/wiidede/dan-player/blob/main/playground/src/App.vue" target="_blank">Demo Source</a>
     </div>
     <div class="text-sm">
-      <a href="https://github.com/wiidede/vue-comp-starter/blob/main/LICENSE">MIT</a> License © 2023-PRESENT <a href="https://github.com/wiidede">wiidede</a>
+      <a href="https://github.com/wiidede/dan-player/blob/main/LICENSE">MIT</a> License © 2023-PRESENT <a href="https://github.com/wiidede">wiidede</a>
     </div>
   </footer>
 </template>
 
 <style scoped>
 a {
-  --at-apply: underline decoration-zinc-400/50 after: content-[ '↗'] after: text-0.8em
-    after: op67;
+  --at-apply: underline decoration-zinc-400/50 after: content-[ '↗'] after: text-0.8em after: op67;
 }
 </style>

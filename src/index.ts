@@ -1,5 +1,5 @@
 import 'uno.css'
 
-export { default as Comp } from './Comp.vue'
-export * from './type'
+export { default as DanPlayer } from './DanPlayer.vue'
 export * from './resolver'
+export * from './type'

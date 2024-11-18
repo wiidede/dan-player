@@ -10,8 +10,10 @@
       "vitest",
       "vite/client"
     ],
+    "allowJs": true,
     "strict": true,
     "strictNullChecks": true,
+    "outDir": "./dist",
     "esModuleInterop": true,
     "skipDefaultLibCheck": true,
     "skipLibCheck": true

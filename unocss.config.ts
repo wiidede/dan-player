@@ -10,7 +10,7 @@ import {
 
 export default defineConfig({
   shortcuts: [
-    ['v-comp-text', 'text-5 text-zinc-700 dark:text-zinc-200'],
+    ['flex-center', 'flex items-center justify-center'],
   ],
   theme: {
     colors: {
@@ -22,7 +22,7 @@ export default defineConfig({
     presetUno(),
     presetAttributify(),
     presetIcons({
-      scale: 1.2,
+      scale: 1.0,
       warn: true,
     }),
     presetTypography(),

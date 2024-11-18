@@ -4,14 +4,14 @@ export interface VueCompStarterResolverOptions {
   /**
    * The name of the component. It should always CapitalCase
    *
-   * @default 'VComp'
+   * @default 'DanPlayer'
    */
   name?: string
 }
 
 export function VueCompStarterResolver(option: VueCompStarterResolverOptions = {}): ComponentResolver {
   option = {
-    name: 'VComp',
+    name: 'DanPlayer',
     ...option,
   }
 
@@ -20,10 +20,10 @@ export function VueCompStarterResolver(option: VueCompStarterResolverOptions = {
     resolve: (name: string) => {
       if (name === option.name) {
         return {
-          name: 'Comp',
+          name: 'DanPlayer',
           as: name,
-          from: 'vue-comp-starter',
-          sideEffects: 'vue-comp-starter/style.css',
+          from: 'dan-player',
+          sideEffects: 'dan-player/style.css',
         }
       }
     },

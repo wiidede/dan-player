@@ -10,6 +10,7 @@ export function useCCL(
   comments: MaybeRefOrGetter<ICommentCCL[] | undefined>,
   autoplayOnCommentLoad: MaybeRefOrGetter<boolean | undefined>,
   onCommentLoad: () => void,
+  videoRef: MaybeRef<HTMLVideoElement | undefined>,
   target: MaybeRef<HTMLElement | undefined>,
   playing: Ref<boolean>,
   currentTime: Ref<number>,
@@ -40,7 +41,17 @@ export function useCCL(
         commentManager.clear()
         commentManager.load(val)
         if (toValue(autoplayOnCommentLoad)) {
-          playing.value = true
+          const video = unrefElement(videoRef)
+          if (video) {
+            video.play().catch((err) => {
+              if (err.name === 'NotAllowedError') {
+                console.warn('弹幕已加载，受限于浏览器权限，无法自动播放')
+              }
+              else {
+                console.error(err)
+              }
+            })
+          }
         }
         else {
           setTimeout(() => stopComment(), 0)

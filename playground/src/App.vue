@@ -1,9 +1,21 @@
 <script setup lang="ts">
+import type { ICommentCCL } from '../../src/type'
 import { useDark, useToggle } from '@vueuse/core'
 import { demoComments } from './demo-comments'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
+
+const src = ref<string>()
+const comments = ref<ICommentCCL[]>()
+
+setTimeout(() => {
+  src.value = '/demo.mp4'
+}, 1000)
+
+setTimeout(() => {
+  comments.value = demoComments
+}, 2000)
 </script>
 
 <template>
@@ -16,7 +28,7 @@ const toggleDark = useToggle(isDark)
     </div>
     <div class="flex flex-col gap-12">
       <!-- TODO: 替换成mkv -->
-      <DanPlayer src="/demo.mp4" :comments="demoComments" />
+      <DanPlayer :src="src" :comments="comments" autoplay-on-comment-load />
     </div>
   </main>
   <footer class="m-auto mt8 prose">

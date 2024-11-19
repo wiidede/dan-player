@@ -6,12 +6,10 @@ import { useCCL } from './composables/ccl'
 
 const {
   comments,
-  src,
   autoplayOnCommentLoad,
   additionalFunctions,
 } = defineProps<{
   comments?: ICommentCCL[]
-  src?: string
   autoplayOnCommentLoad?: boolean
   additionalFunctions?: ('loop' | 'picture-in-picture')[]
 }>()
@@ -40,14 +38,18 @@ const {
   buffered,
   enableTrack,
   disableTrack,
-} = useMediaControls(videoRef, {
-  src: src ? { src } : undefined,
-})
+} = useMediaControls(videoRef)
 
-function onCommentLoad() {
-  emit('onCommentLoad')
-}
-const { showComment, toggleShowComment } = useCCL(comments, autoplayOnCommentLoad, onCommentLoad, commentRef, playing, currentTime)
+const onCommentLoad = () => emit('onCommentLoad')
+const { showComment, toggleShowComment } = useCCL(
+  () => comments,
+  () => autoplayOnCommentLoad,
+  onCommentLoad,
+  videoRef,
+  commentRef,
+  playing,
+  currentTime,
+)
 
 const loop = ref(false)
 
@@ -135,6 +137,8 @@ defineExpose({
     ref="videoContainerRef"
     class="dan-player ccl-player relative flex-center overflow-hidden bg-black container"
     :class="{ 'cursor-none': idle }"
+    tabindex="0"
+    autofocus
     @keydown.prevent.space="togglePlay()"
     @keydown.right="currentTime += 10"
     @keydown.left="currentTime -= 10"
@@ -154,7 +158,7 @@ defineExpose({
       v-if="waiting"
       class="pointer-events-none absolute inset-0 grid place-items-center bg-black bg-opacity-20"
     >
-      <div class="i-carbon-circle-dash animate-spin" />
+      <div class="i-carbon-circle-dash animate-spin animate-duration-300 text-4xl" />
     </div>
     <div class="dan-player-gradient-bottom" />
     <div class="absolute bottom-0 left-0 right-0 px-4">
@@ -313,6 +317,10 @@ defineExpose({
 <style scoped>
 .btn {
   --at-apply: rd hover-bg-zinc-500/60 active-bg-zinc-600/60 p-1;
+}
+
+.dan-player:focus {
+  outline: none;
 }
 
 .dan-player-gradient-bottom {

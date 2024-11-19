@@ -164,12 +164,12 @@ defineExpose({
     <div class="absolute bottom-0 left-0 right-0 px-4">
       <Scrubber v-model="currentTime" :max="duration" :secondary="endBuffer" :tooltip-formatter="formatDuration" />
       <div class="flex items-center pb-2 text-white">
-        <button class="btn" @click="togglePlay()">
+        <button class="dan-btn" @click="togglePlay()">
           <div :class="playing ? 'i-carbon-pause' : 'i-carbon-play'" />
         </button>
 
         <div ref="volumeAdjustRef" class="flex items-center of-hidden">
-          <button class="btn" @click="muted = !muted">
+          <button class="dan-btn" @click="muted = !muted">
             <div class="scale-90" :class="muted ? 'i-carbon-volume-mute' : volume > 0.5 ? 'i-carbon-volume-up' : 'i-carbon-volume-down'" />
           </button>
           <Transition name="volume-expand-right">
@@ -194,7 +194,7 @@ defineExpose({
 
         <div class="ml-auto" />
 
-        <button class="btn" @click="toggleShowComment()">
+        <button class="dan-btn" @click="toggleShowComment()">
           <div :class="showComment ? 'i-carbon-chat-off' : 'i-carbon-chat'" />
         </button>
 
@@ -207,7 +207,7 @@ defineExpose({
           :teleported="false"
         >
           <template #reference>
-            <button class="btn">
+            <button class="dan-btn">
               <div i-carbon-chat-operational />
             </button>
           </template>
@@ -224,7 +224,7 @@ defineExpose({
           :teleported="false"
         >
           <template #reference>
-            <button class="btn">
+            <button class="dan-btn">
               <div i-carbon-closed-caption :class="selectedTrack !== -1 ? 'text-primary-500' : ''" />
             </button>
           </template>
@@ -243,7 +243,7 @@ defineExpose({
           :show-arrow="false"
         >
           <template #reference>
-            <button class="btn">
+            <button class="dan-btn">
               <div i-carbon-gears />
             </button>
           </template>
@@ -254,15 +254,15 @@ defineExpose({
           />
         </ElPopover>
 
-        <button v-if="additionalFunctions?.includes('loop')" class="btn" @click="loop = !loop">
+        <button v-if="additionalFunctions?.includes('loop')" class="dan-btn" @click="loop = !loop">
           <div :class="loop ? 'i-carbon-repeat' : 'i-carbon-repeat opacity-50'" />
         </button>
 
-        <button v-if="supportsPictureInPicture && additionalFunctions?.includes('picture-in-picture')" class="btn" @click="togglePictureInPicture()">
+        <button v-if="supportsPictureInPicture && additionalFunctions?.includes('picture-in-picture')" class="dan-btn" @click="togglePictureInPicture()">
           <div :class="isPictureInPicture ? 'i-dan-back-to-screen' : 'i-carbon-shrink-screen'" />
         </button>
 
-        <button class="btn" @click="toggleFullscreen()">
+        <button class="dan-btn" @click="toggleFullscreen()">
           <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-fit-to-screen'" />
         </button>
       </div>
@@ -315,8 +315,8 @@ defineExpose({
 </style>
 
 <style scoped>
-.btn {
-  --at-apply: rd hover-bg-zinc-500/60 active-bg-zinc-600/60 p-1;
+.dan-btn {
+  --at-apply: rd hover-bg-zinc-500/60 active-bg-zinc-600/60 p-1 bg-transparent bg-none b-none c-inherit cursor-pointer;
 }
 
 .dan-player:focus {

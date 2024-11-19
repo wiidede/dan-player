@@ -1,19 +1,23 @@
 <script setup lang="ts">
+import type { I18nLocale, I18nMessages } from './composables/useI18n'
 import type { ICommentCCL } from './type'
 import { reactiveOmit, whenever } from '@vueuse/core'
 import { logicAnd } from '@vueuse/math'
 import { usePopperContainerId } from 'element-plus'
 import { version } from '../package.json'
 import { useCCL } from './composables/ccl'
+import { useI18n } from './composables/useI18n'
 
 const {
   comments,
   autoplayOnCommentLoad,
   additionalFunctions,
+  locale = 'en',
 } = defineProps<{
   comments?: ICommentCCL[]
   autoplayOnCommentLoad?: boolean
   additionalFunctions?: ('loop' | 'picture-in-picture')[]
+  locale?: I18nLocale | I18nMessages
 }>()
 
 const emit = defineEmits<{
@@ -123,78 +127,84 @@ const notUsingInput = computed(() =>
   && !(activeElement.value instanceof HTMLElement && activeElement.value.isContentEditable),
 )
 
+const { t } = useI18n(() => locale ?? 'en')
+
 // Handle keyboard shortcuts
 whenever(logicAnd(space, notUsingInput), () => {
   togglePlay()
-  showToast(`${playing.value ? 'Playing' : 'Paused'}`)
+  showToast(`${playing.value ? t.value.play : t.value.pause}`)
 })
 
 whenever(logicAnd(arrowRight, notUsingInput), () => {
   currentTime.value += 5
-  showToast('Forward 5s')
+  showToast(t.value.forward)
 })
 
 whenever(logicAnd(arrowLeft, notUsingInput), () => {
   currentTime.value -= 5
-  showToast('Backward 5s')
+  showToast(t.value.backward)
 })
 
 whenever(logicAnd(arrowUp, notUsingInput), () => {
   volume.value = Math.min(1, volume.value + 0.1)
-  showToast(`Volume: ${Math.round(volume.value * 100)}%`)
+  showToast(`${t.value.volume}: ${Math.round(volume.value * 100)}%`)
 })
 
 whenever(logicAnd(arrowDown, notUsingInput), () => {
   volume.value = Math.max(0, volume.value - 0.1)
-  showToast(`Volume: ${Math.round(volume.value * 100)}%`)
+  showToast(`${t.value.volume}: ${Math.round(volume.value * 100)}%`)
 })
 
 whenever(logicAnd(m, notUsingInput), () => {
   muted.value = !muted.value
-  showToast(`${muted.value ? 'Muted' : 'Unmuted'}`)
+  showToast(muted.value ? t.value.mute : t.value.unmute)
 })
 
 whenever(logicAnd(f, notUsingInput), () => {
   toggleFullscreen()
-  showToast(`${isFullscreen.value ? 'Exit Fullscreen' : 'Fullscreen'}`)
+  showToast(isFullscreen.value ? t.value.exitFullscreen : t.value.fullscreen)
 })
 
 whenever(logicAnd(p, notUsingInput), () => {
   if (supportsPictureInPicture) {
     togglePictureInPicture()
-    showToast('Picture in Picture toggled')
+    showToast(isPictureInPicture.value ? t.value.exitPip : t.value.pip)
   }
 })
 
 whenever(logicAnd(bracketLeft, notUsingInput), () => {
   rate.value = Math.max(0.5, rate.value - 0.25)
-  showToast(`Speed: ${rate.value}x`)
+  showToast(`${t.value.speed}: ${rate.value}x`)
 })
 
 whenever(logicAnd(bracketRight, notUsingInput), () => {
   rate.value = Math.min(3, rate.value + 0.25)
-  showToast(`Speed: ${rate.value}x`)
+  showToast(`${t.value.speed}: ${rate.value}x`)
 })
 
 const showDialog = ref(false)
 const toggleDialog = useToggle(showDialog)
 
-const keyboardShortcuts = [
-  { key: 'Space', description: 'Play/Pause' },
-  { key: '←', description: 'Backward 5s' },
-  { key: '→', description: 'Forward 5s' },
-  { key: '↑', description: 'Volume Up' },
-  { key: '↓', description: 'Volume Down' },
-  { key: 'M', description: 'Mute/Unmute' },
-  { key: 'F', description: 'Toggle Fullscreen' },
-  { key: 'P', description: 'Picture in Picture' },
-  { key: '[', description: 'Speed -0.25x' },
-  { key: ']', description: 'Speed +0.25x' },
-]
+const keyboardShortcuts = computed(() => [
+  { key: 'Space', description: t.value.playPause },
+  { key: '←', description: t.value.backward },
+  { key: '→', description: t.value.forward },
+  { key: '↑', description: t.value.volumeUp },
+  { key: '↓', description: t.value.volumeDown },
+  { key: 'M', description: t.value.muteUnmute },
+  { key: 'F', description: t.value.fullscreen },
+  { key: 'P', description: t.value.pip },
+  { key: '[', description: t.value.speedDown },
+  { key: ']', description: t.value.speedUp },
+])
 
 const videoInfo = computed(() => ({
-  'Resolution': videoRef.value ? `${videoRef.value.videoWidth}x${videoRef.value.videoHeight}` : 'N/A',
-  'Network State': videoRef.value ? ['Empty', 'Idle', 'Loading', 'No Source'][videoRef.value.networkState] : 'N/A',
+  [t.value.currentTime]: formatDuration(currentTime.value),
+  [t.value.duration]: formatDuration(duration.value),
+  [t.value.speed]: `${rate.value}x`,
+  [t.value.volume]: `${Math.round(volume.value * 100)}%`,
+  [t.value.resolution]: videoRef.value ? `${videoRef.value.videoWidth}x${videoRef.value.videoHeight}` : 'N/A',
+  [t.value.networkState]: videoRef.value ? ['Empty', 'Idle', 'Loading', 'No Source'][videoRef.value.networkState] : 'N/A',
 }))
 
 onMounted(() => {
@@ -321,7 +331,7 @@ defineExpose({
               <div i-carbon-chat-operational />
             </button>
           </template>
-          <CommentStyle />
+          <CommentStyle :locale="locale" />
         </ElPopover>
 
         <ElPopover
@@ -399,7 +409,7 @@ defineExpose({
           <!-- Video Info Section -->
           <div class="space-y-2">
             <span class="text-sm text-zinc-200 font-medium">
-              Video Information
+              {{ t.videoInfo }}
             </span>
             <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
               <template v-for="(value, key) in videoInfo" :key="key">
@@ -411,12 +421,12 @@ defineExpose({
           <!-- Video Info Section -->
           <div class="space-y-2">
             <span class="text-sm text-zinc-200 font-medium">
-              Player Information
+              {{ t.playerInfo }}
             </span>
             <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-              <span class="dan-label">version</span>
+              <span class="dan-label">{{ t.version }}</span>
               <span class="dan-value">{{ version }}</span>
-              <span class="dan-label">Author</span>
+              <span class="dan-label">{{ t.author }}</span>
               <span class="dan-value"><a href="https://github.com/wiidede/" target="_blank">wiidede</a></span>
               <span class="dan-label">GitHub</span>
               <span class="dan-value"><a href="https://github.com/wiidede/dan-player" target="_blank"><div class="i-carbon-logo-github" /></a></span>
@@ -430,7 +440,7 @@ defineExpose({
         <!-- Keyboard Shortcuts Section -->
         <div class="space-y-2">
           <span class="text-sm text-zinc-200 font-medium">
-            Keyboard Shortcuts
+            {{ t.keyboardShortcuts }}
           </span>
           <div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
             <template v-for="shortcut in keyboardShortcuts" :key="shortcut.key">
@@ -541,7 +551,4 @@ defineExpose({
     width: 4rem;
   }
 }
-</style>
-
-<style scoped>
 </style>

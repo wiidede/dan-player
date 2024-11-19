@@ -4,8 +4,3 @@ export const commentShadowMap = {
   none: '0',
 } as const
 export const commentShadowList = Object.keys(commentShadowMap) as (keyof typeof commentShadowMap)[]
-export const commentShadowLabelMap = {
-  border: '描边',
-  shadow: '阴影',
-  none: '无',
-} as const

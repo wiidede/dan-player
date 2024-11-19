@@ -14,12 +14,7 @@ export function usePreference() {
     showComment: true,
   }
 
-  // Old settings
-  const oldValue = localStorage.getItem('dan-player-settings')
-  if (oldValue)
-    localStorage.removeItem('dan-player-settings')
-
-  const preference = useLocalStorage<Preference>('dan-player-preference', Object.assign(oldValue ? JSON.parse(oldValue) : {}, defaultValue))
+  const preference = useLocalStorage<Preference>('dan-player-preference', defaultValue)
 
   return toRefs(preference)
 }

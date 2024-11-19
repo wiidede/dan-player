@@ -9,6 +9,8 @@ const toggleDark = useToggle(isDark)
 const src = ref<string>()
 const comments = ref<ICommentCCL[]>()
 
+const locale = ref<'zh' | 'en'>('zh')
+
 setTimeout(() => {
   src.value = '/dan-player-demo.mkv'
 }, 1000)
@@ -28,7 +30,15 @@ setTimeout(() => {
     </div>
     <div class="flex flex-col gap-12">
       <!-- TODO: 替换成mkv -->
-      <DanPlayer :src="src" :comments="comments" autoplay-on-comment-load />
+      <DanPlayer :src="src" :comments="comments" autoplay-on-comment-load :locale="locale" />
+    </div>
+    <div class="flex gap-2 py-2">
+      <button @click="locale = 'zh'">
+        中文
+      </button>
+      <button @click="locale = 'en'">
+        English
+      </button>
     </div>
   </main>
   <footer class="m-auto mt8 prose">

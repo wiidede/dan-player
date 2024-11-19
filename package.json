@@ -1,5 +1,5 @@
 {
-  "name": "dan-player",
+  "name": "@wiidede/dan-player",
   "type": "module",
   "version": "0.1.0",
   "packageManager": "pnpm@9.13.2",

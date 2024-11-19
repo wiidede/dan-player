@@ -126,7 +126,7 @@ The component exposes several properties and methods via `defineExpose` for exte
 [npm-downloads-href]: https://npmjs.com/package/@wiidede/dan-player
 [bundle-src]: https://img.shields.io/bundlephobia/minzip/@wiidede/dan-player?style=flat&colorA=080f12&colorB=1fa669&label=minzip
 [bundle-href]: https://bundlephobia.com/result?p=@wiidede/dan-player
-[license-src]: https://img.shields.io/github/license/wiidede/@wiidede/dan-player.svg?style=flat&colorA=080f12&colorB=1fa669
+[license-src]: https://img.shields.io/github/license/wiidede/dan-player.svg?style=flat&colorA=080f12&colorB=1fa669
 [license-href]: https://github.com/wiidede/dan-player/blob/main/LICENSE
 [jsdocs-src]: https://img.shields.io/badge/jsdocs-reference-080f12?style=flat&colorA=080f12&colorB=1fa669
 [jsdocs-href]: https://www.jsdocs.io/package/@wiidede/dan-player

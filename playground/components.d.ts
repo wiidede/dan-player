@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     CommentStyle: typeof import('./../src/components/CommentStyle.vue')['default']
     DanPlayer: typeof import('@wiidede/dan-player')['DanPlayer']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElPopover: typeof import('element-plus/es')['ElPopover']
     ElSegmented: typeof import('element-plus/es')['ElSegmented']

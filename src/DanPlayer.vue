@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { ICommentCCL } from './type'
-import { reactiveOmit } from '@vueuse/core'
+import { reactiveOmit, whenever } from '@vueuse/core'
+import { logicAnd } from '@vueuse/math'
 import { usePopperContainerId } from 'element-plus'
+import { version } from '../package.json'
 import { useCCL } from './composables/ccl'
 
 const {
@@ -92,6 +94,109 @@ function formatDuration(seconds: number) {
   return new Date(1000 * seconds).toISOString().slice(14, 19)
 }
 
+// Toast state
+const toast = reactive({
+  visible: false,
+  message: '',
+  timer: null as NodeJS.Timeout | null,
+})
+
+function showToast(message: string) {
+  if (toast.timer)
+    clearTimeout(toast.timer)
+
+  toast.message = message
+  toast.visible = true
+
+  toast.timer = setTimeout(() => {
+    toast.visible = false
+    toast.message = ''
+  }, 1500)
+}
+
+const { space, arrowUp, arrowDown, arrowLeft, arrowRight, m, f, p, bracketLeft, bracketRight } = useMagicKeys()
+
+const activeElement = useActiveElement()
+const notUsingInput = computed(() =>
+  activeElement.value?.tagName !== 'INPUT'
+  && activeElement.value?.tagName !== 'TEXTAREA'
+  && !(activeElement.value instanceof HTMLElement && activeElement.value.isContentEditable),
+)
+
+// Handle keyboard shortcuts
+whenever(logicAnd(space, notUsingInput), () => {
+  togglePlay()
+  showToast(`${playing.value ? 'Playing' : 'Paused'}`)
+})
+
+whenever(logicAnd(arrowRight, notUsingInput), () => {
+  currentTime.value += 5
+  showToast('Forward 5s')
+})
+
+whenever(logicAnd(arrowLeft, notUsingInput), () => {
+  currentTime.value -= 5
+  showToast('Backward 5s')
+})
+
+whenever(logicAnd(arrowUp, notUsingInput), () => {
+  volume.value = Math.min(1, volume.value + 0.1)
+  showToast(`Volume: ${Math.round(volume.value * 100)}%`)
+})
+
+whenever(logicAnd(arrowDown, notUsingInput), () => {
+  volume.value = Math.max(0, volume.value - 0.1)
+  showToast(`Volume: ${Math.round(volume.value * 100)}%`)
+})
+
+whenever(logicAnd(m, notUsingInput), () => {
+  muted.value = !muted.value
+  showToast(`${muted.value ? 'Muted' : 'Unmuted'}`)
+})
+
+whenever(logicAnd(f, notUsingInput), () => {
+  toggleFullscreen()
+  showToast(`${isFullscreen.value ? 'Exit Fullscreen' : 'Fullscreen'}`)
+})
+
+whenever(logicAnd(p, notUsingInput), () => {
+  if (supportsPictureInPicture) {
+    togglePictureInPicture()
+    showToast('Picture in Picture toggled')
+  }
+})
+
+whenever(logicAnd(bracketLeft, notUsingInput), () => {
+  rate.value = Math.max(0.5, rate.value - 0.25)
+  showToast(`Speed: ${rate.value}x`)
+})
+
+whenever(logicAnd(bracketRight, notUsingInput), () => {
+  rate.value = Math.min(3, rate.value + 0.25)
+  showToast(`Speed: ${rate.value}x`)
+})
+
+const showDialog = ref(false)
+const toggleDialog = useToggle(showDialog)
+
+const keyboardShortcuts = [
+  { key: 'Space', description: 'Play/Pause' },
+  { key: '←', description: 'Backward 5s' },
+  { key: '→', description: 'Forward 5s' },
+  { key: '↑', description: 'Volume Up' },
+  { key: '↓', description: 'Volume Down' },
+  { key: 'M', description: 'Mute/Unmute' },
+  { key: 'F', description: 'Toggle Fullscreen' },
+  { key: 'P', description: 'Picture in Picture' },
+  { key: '[', description: 'Speed -0.25x' },
+  { key: ']', description: 'Speed +0.25x' },
+]
+
+const videoInfo = computed(() => ({
+  'Resolution': videoRef.value ? `${videoRef.value.videoWidth}x${videoRef.value.videoHeight}` : 'N/A',
+  'Network State': videoRef.value ? ['Empty', 'Idle', 'Loading', 'No Source'][videoRef.value.networkState] : 'N/A',
+}))
+
 onMounted(() => {
   const popperContainer = document.querySelector(usePopperContainerId().selector.value) as HTMLElement | null
   if (!popperContainer)
@@ -137,11 +242,6 @@ defineExpose({
     ref="videoContainerRef"
     class="dan-player ccl-player relative flex-center overflow-hidden bg-black container"
     :class="{ 'cursor-none': idle }"
-    tabindex="0"
-    autofocus
-    @keydown.prevent.space="togglePlay()"
-    @keydown.right="currentTime += 10"
-    @keydown.left="currentTime -= 10"
   >
     <video
       ref="videoRef"
@@ -199,6 +299,10 @@ defineExpose({
         </div>
 
         <div class="ml-auto" />
+
+        <button class="dan-btn" @click="toggleDialog()">
+          <div class="i-carbon-information" />
+        </button>
 
         <button class="dan-btn" @click="toggleShowComment()">
           <div :class="showComment ? 'i-carbon-chat-off' : 'i-carbon-chat'" />
@@ -273,6 +377,70 @@ defineExpose({
         </button>
       </div>
     </div>
+
+    <!-- Custom Toast -->
+    <Transition name="toast-fade">
+      <div
+        v-if="toast.visible"
+        class="absolute left-6 top-6 rounded bg-black/80 px-4 py-2 text-sm text-white"
+      >
+        {{ toast.message }}
+      </div>
+    </Transition>
+
+    <ElDialog
+      v-model="showDialog"
+      title="Dan Player"
+      class="dan-player-dialog"
+      width="fit-content"
+    >
+      <div class="flex gap-4 text-zinc-300">
+        <div class="space-y-2">
+          <!-- Video Info Section -->
+          <div class="space-y-2">
+            <span class="text-sm text-zinc-200 font-medium">
+              Video Information
+            </span>
+            <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+              <template v-for="(value, key) in videoInfo" :key="key">
+                <span class="dan-label">{{ key }}</span>
+                <span class="dan-value">{{ value }}</span>
+              </template>
+            </div>
+          </div>
+          <!-- Video Info Section -->
+          <div class="space-y-2">
+            <span class="text-sm text-zinc-200 font-medium">
+              Player Information
+            </span>
+            <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+              <span class="dan-label">version</span>
+              <span class="dan-value">{{ version }}</span>
+              <span class="dan-label">Author</span>
+              <span class="dan-value"><a href="https://github.com/wiidede/" target="_blank">wiidede</a></span>
+              <span class="dan-label">GitHub</span>
+              <span class="dan-value"><a href="https://github.com/wiidede/dan-player" target="_blank"><div class="i-carbon-logo-github" /></a></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="my-2 w-[1px] bg-zinc-700" />
+
+        <!-- Keyboard Shortcuts Section -->
+        <div class="space-y-2">
+          <span class="text-sm text-zinc-200 font-medium">
+            Keyboard Shortcuts
+          </span>
+          <div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+            <template v-for="shortcut in keyboardShortcuts" :key="shortcut.key">
+              <span class="dan-label">{{ shortcut.description }}</span>
+              <span class="dan-value w-fit">{{ shortcut.key }}</span>
+            </template>
+          </div>
+        </div>
+      </div>
+    </ElDialog>
   </div>
 </template>
 
@@ -304,6 +472,14 @@ defineExpose({
   padding: 0;
 }
 
+.dan-label {
+  --at-apply: text-sm text-zinc-400;
+}
+
+.dan-value {
+  --at-apply: rounded bg-zinc-800/50 px-2 py-0.5 text-sm text-zinc-200 font-mono;
+}
+
 .dan-player .el-slider {
   --el-slider-height: 4px;
   --el-slider-button-size: 12px;
@@ -317,6 +493,18 @@ defineExpose({
     margin-top: 8px;
     font-size: 12px;
   }
+}
+
+.toast-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+.toast-fade-leave-active {
+  transition: all 0.15s ease-in;
+}
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  transform: translateY(-4px);
+  opacity: 0;
 }
 </style>
 
@@ -352,4 +540,7 @@ defineExpose({
     width: 4rem;
   }
 }
+</style>
+
+<style scoped>
 </style>

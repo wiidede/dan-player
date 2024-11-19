@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useDark, useToggle } from '@vueuse/core'
-import { DanPlayer } from 'dan-player'
 import { demoComments } from './demo-comments'
 
 const isDark = useDark()

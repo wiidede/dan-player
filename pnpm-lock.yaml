@@ -30,6 +30,9 @@ importers:
       '@iconify-json/carbon':
         specifier: ^1.2.4
         version: 1.2.4
+      '@iconify/utils':
+        specifier: ^2.1.33
+        version: 2.1.33
       '@types/jsdom':
         specifier: ^21.1.7
         version: 21.1.7

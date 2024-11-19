@@ -7,8 +7,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    HoverCard: typeof import('./components/ui/hover-card/HoverCard.vue')['default']
-    HoverCardContent: typeof import('./components/ui/hover-card/HoverCardContent.vue')['default']
-    HoverCardTrigger: typeof import('./components/ui/hover-card/HoverCardTrigger.vue')['default']
+    CommentStyle: typeof import('./components/CommentStyle.vue')['default']
+    ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
+    ElPopover: typeof import('element-plus/es')['ElPopover']
+    ElSegmented: typeof import('element-plus/es')['ElSegmented']
+    ElSlider: typeof import('element-plus/es')['ElSlider']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
+    Scrubber: typeof import('./components/Scrubber.vue')['default']
   }
 }

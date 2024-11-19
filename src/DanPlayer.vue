@@ -13,7 +13,7 @@ const {
   comments?: ICommentCCL[]
   src?: string
   autoplayOnCommentLoad?: boolean
-  additionalFunctions?: ('loop')[]
+  additionalFunctions?: ('loop' | 'picture-in-picture')[]
 }>()
 
 const emit = defineEmits<{
@@ -254,12 +254,12 @@ defineExpose({
           <div :class="loop ? 'i-carbon-repeat' : 'i-carbon-repeat opacity-50'" />
         </button>
 
-        <button v-if="supportsPictureInPicture" class="btn" @click="togglePictureInPicture()">
-          <div :class="isPictureInPicture ? 'i-carbon-minimize-window' : 'i-carbon-popup'" />
+        <button v-if="supportsPictureInPicture && additionalFunctions?.includes('picture-in-picture')" class="btn" @click="togglePictureInPicture()">
+          <div :class="isPictureInPicture ? 'i-dan-back-to-screen' : 'i-carbon-shrink-screen'" />
         </button>
 
         <button class="btn" @click="toggleFullscreen()">
-          <div i-carbon-fit-to-screen />
+          <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-fit-to-screen'" />
         </button>
       </div>
     </div>

@@ -29,7 +29,7 @@ const toggleDark = useToggle(isDark)
       <a href="https://github.com/wiidede/dan-player/blob/main/playground/src/App.vue" target="_blank">Demo Source</a>
     </div>
     <div class="text-sm">
-      <a href="https://github.com/wiidede/dan-player/blob/main/LICENSE">MIT</a> License © 2023-PRESENT <a href="https://github.com/wiidede">wiidede</a>
+      <a href="https://github.com/wiidede/dan-player/blob/main/LICENSE">MIT</a> License © 2024-PRESENT <a href="https://github.com/wiidede">wiidede</a>
     </div>
   </footer>
 </template>

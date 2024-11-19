@@ -1,3 +1,4 @@
+import { FileSystemIconLoader } from '@iconify/utils/lib/loader/node-loaders'
 import {
   defineConfig,
   presetAttributify,
@@ -24,6 +25,11 @@ export default defineConfig({
     presetIcons({
       scale: 1.2,
       warn: true,
+      collections: {
+        dan: FileSystemIconLoader(
+          './src/assets/icons',
+        ),
+      },
     }),
     presetTypography(),
   ],

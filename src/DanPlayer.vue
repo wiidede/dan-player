@@ -160,8 +160,14 @@ defineExpose({
     >
       <div class="i-carbon-circle-dash animate-spin animate-duration-300 text-4xl" />
     </div>
-    <div class="dan-player-gradient-bottom" />
-    <div class="absolute bottom-0 left-0 right-0 px-4">
+    <div
+      class="dan-player-gradient-bottom bottom-0 h-16 w-full transition"
+      :class="idle ? 'op-0 translate-y-full' : ''"
+    />
+    <div
+      class="absolute bottom-0 left-0 right-0 px-4 transition"
+      :class="idle ? 'op-0 translate-y-full' : ''"
+    >
       <Scrubber v-model="currentTime" :max="duration" :secondary="endBuffer" :tooltip-formatter="formatDuration" />
       <div class="flex items-center pb-2 text-white">
         <button class="dan-btn" @click="togglePlay()">
@@ -324,14 +330,10 @@ defineExpose({
 }
 
 .dan-player-gradient-bottom {
-  width: 100%;
-  bottom: 0;
-  height: 61px;
   background-position: bottom;
   position: absolute;
-  background-repeat: repeat-x;
-  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAADGCAYAAAAT+OqFAAAAdklEQVQoz42QQQ7AIAgEF/T/D+kbq/RWAlnQyyazA4aoAB4FsBSA/bFjuF1EOL7VbrIrBuusmrt4ZZORfb6ehbWdnRHEIiITaEUKa5EJqUakRSaEYBJSCY2dEstQY7AuxahwXFrvZmWl2rh4JZ07z9dLtesfNj5q0FU3A5ObbwAAAABJRU5ErkJggg==);
-  transition: opacity 0.25s cubic-bezier(0, 0, 0.2, 1);
+  background: rgb(0, 0, 0);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.33) 66%, rgba(0, 0, 0, 0) 100%);
   pointer-events: none;
 }
 

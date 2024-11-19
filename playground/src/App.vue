@@ -10,7 +10,7 @@ const src = ref<string>()
 const comments = ref<ICommentCCL[]>()
 
 setTimeout(() => {
-  src.value = '/demo.mp4'
+  src.value = '/dan-player-demo.mkv'
 }, 1000)
 
 setTimeout(() => {

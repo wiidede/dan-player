@@ -1,7 +1,7 @@
 {
   "name": "@wiidede/dan-player",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "packageManager": "pnpm@9.13.2",
   "description": "A player supporting danmaku using Comment Core Library",
   "author": "wiidede <wiixdede@gmail.com>",

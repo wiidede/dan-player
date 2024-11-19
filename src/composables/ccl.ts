@@ -10,7 +10,7 @@ export function useCCL(
   comments: MaybeRefOrGetter<ICommentCCL[] | undefined>,
   autoplayOnCommentLoad: MaybeRefOrGetter<boolean | undefined>,
   onCommentLoad: () => void,
-  target: MaybeRef<HTMLElement | null>,
+  target: MaybeRef<HTMLElement | undefined>,
   playing: Ref<boolean>,
   currentTime: Ref<number>,
 ) {

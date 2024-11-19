@@ -9,7 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     CommentStyle: typeof import('./../src/components/CommentStyle.vue')['default']
     Comp: typeof import('dan-player')['DanPlayer']
-    DanPlayer: typeof import('dan-player')['DanPlayer']
+    DanPlayer: typeof import('@wiidede/dan-player')['DanPlayer']
     ElDropdown: typeof import('element-plus/es')['ElDropdown']
     ElDropdownItem: typeof import('element-plus/es')['ElDropdownItem']
     ElDropdownMenu: typeof import('element-plus/es')['ElDropdownMenu']

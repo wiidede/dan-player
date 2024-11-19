@@ -10,7 +10,7 @@
   "dependencies": {
     "@unocss/reset": "^0.58.5",
     "@vueuse/core": "^10.9.0",
-    "dan-player": "workspace:*",
+    "@wiidede/dan-player": "workspace:*",
     "vue": "^3.4.21"
   }
 }

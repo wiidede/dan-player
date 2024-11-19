@@ -6,7 +6,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Component from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
-import { VueCompStarterResolver } from '../src/resolver'
+import { DanPlayerResolver } from '../src/resolver'
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => ({
       resolvers: mode === 'play' ? [ElementPlusResolver()] : [],
     }),
     Component({
-      resolvers: mode === 'play' ? [ElementPlusResolver()] : [VueCompStarterResolver()],
+      resolvers: mode === 'play' ? [ElementPlusResolver(), DanPlayerResolver()] : [DanPlayerResolver()],
       dirs: mode === 'play' ? ['../src/components'] : [],
     }),
     Unocss(),
@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'blank',
       load(id) {
-        if (mode === 'play' && id.endsWith('dan-player/style.css'))
+        if (mode === 'play' && id.endsWith('@wiidede/dan-player/style.css'))
           return ''
       },
     },
@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: mode === 'play'
       ? [
-          { find: /^dan-player$/, replacement: path.resolve(__dirname, '../src/index.ts') },
+          { find: /^@wiidede\/dan-player$/, replacement: path.resolve(__dirname, '../src/index.ts') },
           { find: /^src\/lib\/utils$/, replacement: path.resolve(__dirname, '../src/lib/utils') },
         ]
       : [],

@@ -1,6 +1,6 @@
 import type { ComponentResolver } from 'unplugin-vue-components'
 
-export interface VueCompStarterResolverOptions {
+export interface DanPlayerResolverOptions {
   /**
    * The name of the component. It should always CapitalCase
    *
@@ -9,7 +9,7 @@ export interface VueCompStarterResolverOptions {
   name?: string
 }
 
-export function VueCompStarterResolver(option: VueCompStarterResolverOptions = {}): ComponentResolver {
+export function DanPlayerResolver(option: DanPlayerResolverOptions = {}): ComponentResolver {
   option = {
     name: 'DanPlayer',
     ...option,
@@ -22,8 +22,8 @@ export function VueCompStarterResolver(option: VueCompStarterResolverOptions = {
         return {
           name: 'DanPlayer',
           as: name,
-          from: 'dan-player',
-          sideEffects: 'dan-player/style.css',
+          from: '@wiidede/dan-player',
+          sideEffects: '@wiidede/dan-player/style.css',
         }
       }
     },

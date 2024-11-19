@@ -20,9 +20,9 @@ const emit = defineEmits<{
   (e: 'onCommentLoad'): void
 }>()
 
-const videoContainerRef = useTemplateRef('videoContainerRef')
-const videoRef = useTemplateRef('videoRef')
-const commentRef = useTemplateRef('commentRef')
+const videoContainerRef = ref<HTMLDivElement>()
+const videoRef = ref<HTMLVideoElement>()
+const commentRef = ref<HTMLDivElement>()
 
 const {
   playing,
@@ -141,8 +141,8 @@ defineExpose({
   >
     <video
       ref="videoRef"
-
-      muted playsinline
+      muted
+      playsinline
       :loop="loop"
       class="w-full outline-none"
       v-bind="reactiveOmit($attrs, 'class', 'style')"

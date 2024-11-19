@@ -510,7 +510,8 @@ defineExpose({
 
 <style scoped>
 .dan-btn {
-  --at-apply: rd hover-bg-zinc-500/60 active-bg-zinc-600/60 p-1 bg-transparent bg-none b-none c-inherit cursor-pointer;
+  --at-apply: rd p-1 c-inherit cursor-pointer text-4 hover-bg-zinc-500/60 active-bg-zinc-600/60 bg-transparent bg-none
+    b-none;
 }
 
 .dan-player:focus {

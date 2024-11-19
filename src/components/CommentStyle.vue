@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { usePreference } from './composables/preference'
-import { commentShadowLabelMap } from './constants/comment'
+import { usePreference } from '../composables/preference'
+import { commentShadowLabelMap } from '../constants/comment'
 
 const {
   commentOpacity,
@@ -26,6 +26,11 @@ const limitMap = {
   200: '200',
 }
 const limitFormatter = (value: number) => value === 0 ? '无限' : value
+
+const commentShadowOptions = Object.keys(commentShadowLabelMap).map(key => ({
+  label: commentShadowLabelMap[key as keyof typeof commentShadowLabelMap],
+  value: key,
+}))
 </script>
 
 <template>
@@ -33,7 +38,7 @@ const limitFormatter = (value: number) => value === 0 ? '无限' : value
     <div>不透明度</div>
     <el-slider v-model="commentOpacity" :min="10" :max="100" :format-tooltip="val => `${val}%`" />
     <div>显示区域</div>
-    <el-slider v-model="commentHeight" :min="25" :max="100" :step="25" :format-tooltip="heightFormatter" :marks="heightMap" />
+    <el-slider v-model="commentHeight" :min="25" :max="100" :step="25" :format-tooltip="heightFormatter" :marks="heightMap" mb-1 />
     <div>弹幕速度</div>
     <el-slider v-model="commentSpeed" :min="0.3" :max="2" :step="0.1" />
     <div>字体大小</div>
@@ -41,13 +46,9 @@ const limitFormatter = (value: number) => value === 0 ? '无限' : value
     <div>弹幕字重</div>
     <el-slider v-model="commentWeight" :min="100" :max="900" :step="100" />
     <div>同屏数量</div>
-    <el-slider v-model="commentLimit" :min="0" :max="200" :step="1" :format-tooltip="limitFormatter" :marks="limitMap" />
+    <el-slider v-model="commentLimit" :min="0" :max="200" :step="1" :format-tooltip="limitFormatter" :marks="limitMap" mb-1 />
     <div>弹幕阴影</div>
-    <el-radio-group v-model="commentShadow" size="small">
-      <el-radio-button v-for="(label, key) in commentShadowLabelMap" :key="key" my2 :value="key">
-        {{ label }}
-      </el-radio-button>
-    </el-radio-group>
+    <el-segmented v-model="commentShadow" :options="commentShadowOptions" size="small" />
     <div>弹幕偏移</div>
     <el-input-number v-model="commentOffset" :precision="1" :step="1" size="small" />
   </div>
@@ -58,25 +59,18 @@ const limitFormatter = (value: number) => value === 0 ? '无限' : value
   display: grid;
   grid-template-columns: 1fr 3fr;
   align-items: center;
-  grid-gap: 10px 20px;
+  grid-gap: 10px 16px;
   width: max-content;
 }
-:deep(.el-slider) {
-  --el-slider-height: 4px;
-  --el-slider-button-size: 12px;
-  --el-slider-stop-bg-color: #808080;
 
-  .el-slider__runway {
-    background-color: #414243;
-  }
+:deep(.el-segmented-item) {
+  --el-text-color-regular: #cfd3dc;
+  --el-fill-color-blank: transparent;
+  --el-border-color: #4c4d4f;
 
-  .el-slider__button {
-    background-color: var(--el-slider-main-bg-color);
-  }
-  .el-slider__marks-text {
-    word-break: keep-all;
-    margin-top: 10px;
-    font-size: 12px;
+  &.is-active {
+    --el-text-color-primary: white;
+    --el-fill-color: #4c4d4f;
   }
 }
 

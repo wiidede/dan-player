@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useDark, useToggle } from '@vueuse/core'
+import { DanPlayer } from 'dan-player'
 import { demoComments } from './demo-comments'
 
 const isDark = useDark()
@@ -16,7 +17,7 @@ const toggleDark = useToggle(isDark)
     </div>
     <div class="flex flex-col gap-12">
       <!-- TODO: 替换成mkv -->
-      <DanPlayer src="/demo.mp4" controls :comments="demoComments" />
+      <DanPlayer src="/demo.mp4" :comments="demoComments" />
     </div>
   </main>
   <footer class="m-auto mt8 prose">

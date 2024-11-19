@@ -7,8 +7,10 @@ import { usePreference } from './preference'
 import '@wiidede/comment-core-library/style.css'
 
 export function useCCL(
-  target: MaybeRef<HTMLElement | undefined>,
-  comments: Ref<ICommentCCL[] | undefined>,
+  comments: MaybeRefOrGetter<ICommentCCL[] | undefined>,
+  autoplayOnCommentLoad: MaybeRefOrGetter<boolean | undefined>,
+  onCommentLoad: () => void,
+  target: MaybeRef<HTMLElement | null>,
   playing: Ref<boolean>,
   currentTime: Ref<number>,
 ) {
@@ -33,11 +35,17 @@ export function useCCL(
       clear && commentManager.clear()
     }
 
-    watch(comments, (val) => {
+    watch(() => toValue(comments), (val) => {
       if (val && val.length) {
         commentManager.clear()
         commentManager.load(val)
-        playing.value = true
+        if (toValue(autoplayOnCommentLoad)) {
+          playing.value = true
+        }
+        else {
+          setTimeout(() => stopComment(), 0)
+          onCommentLoad()
+        }
       }
     }, { immediate: true })
 

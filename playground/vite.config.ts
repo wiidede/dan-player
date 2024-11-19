@@ -13,11 +13,11 @@ export default defineConfig(({ mode }) => ({
     Vue(),
     AutoImport({
       imports: ['vue', '@vueuse/core'],
-      resolvers: [ElementPlusResolver()],
+      resolvers: mode === 'play' ? [ElementPlusResolver()] : [],
     }),
     Component({
-      resolvers: [VueCompStarterResolver(), ElementPlusResolver()],
-      dirs: ['../src/components'],
+      resolvers: mode === 'play' ? [ElementPlusResolver()] : [VueCompStarterResolver()],
+      dirs: mode === 'play' ? ['../src/components'] : [],
     }),
     Unocss(),
     Inspect(),

@@ -12,8 +12,8 @@ importers:
         specifier: ^11.2.0
         version: 11.2.0(vue@3.5.13(typescript@5.6.3))
       '@wiidede/comment-core-library':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       element-plus:
         specifier: ^2.8.8
         version: 2.8.8(vue@3.5.13(typescript@5.6.3))
@@ -1135,8 +1135,8 @@ packages:
   '@vueuse/shared@9.13.0':
     resolution: {integrity: sha512-UrnhU+Cnufu4S6JLCPZnkWh0WwZGUp72ktOF2DFptMlOs3TOdVv8xJN53zhHGARmVOsz5KqOls09+J1NR6sBKw==}
 
-  '@wiidede/comment-core-library@0.1.0':
-    resolution: {integrity: sha512-8C7ACHQfOw9p22SRFV4pUlso3u61SHkUDnXWyul1/WkkLCXPQm/423598WHSkOaidnC6Gqc8UwvMgP3VUFGmQw==}
+  '@wiidede/comment-core-library@0.2.0':
+    resolution: {integrity: sha512-u9VdMLat4CoJ3Adx67PtIG0/hBrXxYVgJcbCo3PYk3dNmZaCptmd6mU3nuZJwGPIj+fPowvEFAJhLTArIMYr+w==}
 
   abbrev@2.0.0:
     resolution: {integrity: sha512-6/mh1E2u2YgEsCHdY0Yx5oW+61gZU+1vXaoiHHrpKeuRNNgFvS+/jrwHiQhB5apAf5oB7UB7E19ol2R2LKH8hQ==}
@@ -4391,7 +4391,7 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@wiidede/comment-core-library@0.1.0': {}
+  '@wiidede/comment-core-library@0.2.0': {}
 
   abbrev@2.0.0: {}
 

@@ -320,7 +320,7 @@ defineExpose({
 
         <ElPopover
           placement="top"
-          trigger="click"
+          trigger="hover"
           width="fit-content"
           popper-class="dan-settings-popper"
           :show-arrow="false"

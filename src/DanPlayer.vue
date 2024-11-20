@@ -320,11 +320,10 @@ defineExpose({
 
         <ElPopover
           placement="top"
-          trigger="hover"
+          trigger="click"
           width="fit-content"
           popper-class="dan-settings-popper"
           :show-arrow="false"
-          :teleported="false"
         >
           <template #reference>
             <button class="dan-btn">
@@ -341,7 +340,6 @@ defineExpose({
           width="fit-content"
           popper-class="dan-settings-popper bg-op"
           :show-arrow="false"
-          :teleported="false"
         >
           <template #reference>
             <button class="dan-btn">
@@ -490,31 +488,29 @@ defineExpose({
   --at-apply: rounded bg-zinc-800/50 px-2 py-0.5 text-sm text-zinc-200 font-mono;
 }
 
-.dan-player .el-slider {
+.dan-player .el-slider,
+.dan-settings-popper .el-slider {
   --el-slider-height: 4px;
   --el-slider-button-size: 12px;
   height: 16px;
-
-  .el-slider__button {
-    background-color: var(--el-slider-main-bg-color);
-  }
-  .el-slider__marks-text {
-    word-break: keep-all;
-    margin-top: 8px;
-    font-size: 12px;
-  }
 }
 
-.toast-fade-enter-active {
-  transition: all 0.2s ease-out;
+.dan-player .el-slider__button-wrapper,
+.dan-settings-popper .el-slider__button-wrapper {
+  top: 2px;
+  transform: translate(-50%, -50%);
 }
-.toast-fade-leave-active {
-  transition: all 0.15s ease-in;
+
+.dan-player .el-slider__button,
+.dan-settings-popper .el-slider__button {
+  background-color: var(--el-slider-main-bg-color);
 }
-.toast-fade-enter-from,
-.toast-fade-leave-to {
-  transform: translateY(-4px);
-  opacity: 0;
+
+.dan-player .el-slider__marks-text,
+.dan-settings-popper .el-slider__marks-text {
+  word-break: keep-all;
+  margin-top: 8px;
+  font-size: 12px;
 }
 </style>
 
@@ -534,6 +530,18 @@ defineExpose({
   background: rgb(0, 0, 0);
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.33) 66%, rgba(0, 0, 0, 0) 100%);
   pointer-events: none;
+}
+
+.toast-fade-enter-active {
+  transition: all 0.2s ease-out;
+}
+.toast-fade-leave-active {
+  transition: all 0.15s ease-in;
+}
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+  transform: translateY(-4px);
+  opacity: 0;
 }
 
 .volume-expand-right-enter-active {

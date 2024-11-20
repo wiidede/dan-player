@@ -83,24 +83,6 @@ watchEffect(() => {
   width: max-content;
 }
 
-:deep(.el-segmented-item) {
-  --el-text-color-regular: #cfd3dc;
-  --el-fill-color-blank: transparent;
-  --el-border-color: #4c4d4f;
-
-  &.is-active {
-    --el-text-color-primary: white;
-    --el-fill-color: #4c4d4f;
-  }
-}
-
-:deep(.el-radio-button) {
-  .el-radio-button__inner {
-    --el-text-color-regular: #cfd3dc;
-    --el-fill-color-blank: transparent;
-  }
-}
-
 :deep(.el-input) {
   --el-input-text-color: #cfd3dc;
   --el-input-bg-color: transparent;

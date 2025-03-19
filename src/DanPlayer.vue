@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { UseMediaTextTrackSource } from '@vueuse/core'
 import type { I18nLocale, I18nMessages } from './composables/useI18n'
 import type { ICommentCCL } from './type'
-import { reactiveOmit, whenever } from '@vueuse/core'
+import { reactiveOmit, useActiveElement, useFullscreen, useIdle, useMagicKeys, useMediaControls, useMouseInElement, useToggle, whenever } from '@vueuse/core'
 import { logicAnd } from '@vueuse/math'
 import { usePopperContainerId } from 'element-plus'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { version } from '../package.json'
 import { useAss } from './composables/ass'
 import { useCCL } from './composables/ccl'
@@ -41,26 +43,24 @@ const mkvFile = computed(() => {
 })
 
 const { subtitleFiles } = useMkvExtractWorker(mkvFile)
+const assSubtitleFiles = computed(() => subtitleFiles.value.filter(file => file.type === 'ass'))
+const vttSubtitleFiles = computed(() => subtitleFiles.value.filter(file => file.type === 'vtt'))
+const vttTracks = computed(() => [
+  ...vttSubtitleFiles.value.map((file, index) => {
+    const track: UseMediaTextTrackSource = {
+      label: file.name,
+      kind: 'subtitles',
+      src: URL.createObjectURL(new Blob([file.data], { type: 'text/vtt' })),
+      srcLang: file.language,
+      default: index === 0,
+    }
+    return track
+  }),
+])
 
 const videoContainerRef = ref<HTMLDivElement>()
 const videoRef = ref<HTMLVideoElement>()
 const commentRef = ref<HTMLDivElement>()
-
-const currentSubtitleIndex = ref(0)
-watch (subtitleFiles, () => {
-  currentSubtitleIndex.value = 0
-})
-const currentSubtitle = computed(() => subtitleFiles.value[currentSubtitleIndex.value])
-useAss(videoRef, currentSubtitle)
-
-// Add subtitle track options
-const subtitleOptions = computed(() => [
-  { label: 'Off', value: -1 },
-  ...(subtitleFiles.value?.map((file, index) => ({
-    label: file.name || `Subtitle ${index + 1}`,
-    value: index,
-  })) || []),
-])
 
 const {
   playing,
@@ -78,7 +78,30 @@ const {
   buffered,
   enableTrack,
   disableTrack,
-} = useMediaControls(videoRef)
+} = useMediaControls(videoRef, {
+  tracks: vttTracks,
+})
+
+const currentSubtitleIndex = ref(0)
+watch (subtitleFiles, () => {
+  currentSubtitleIndex.value = 0
+})
+const currentSubtitle = computed(() => assSubtitleFiles.value[currentSubtitleIndex.value])
+
+useAss(videoRef, computed(() =>
+  currentSubtitle.value && currentSubtitle.value.name.endsWith('.ass')
+    ? currentSubtitle.value
+    : undefined,
+))
+
+// Add subtitle track options
+const subtitleOptions = computed(() => [
+  { label: 'Off', value: -1 },
+  ...(assSubtitleFiles.value?.map((file, index) => ({
+    label: file.name || `Subtitle ${index + 1}`,
+    value: index,
+  })) || []),
+])
 
 const onCommentLoad = () => emit('onCommentLoad')
 const { showComment, toggleShowComment } = useCCL(
@@ -354,7 +377,22 @@ defineExpose({
         </button>
 
         <ElPopover
-          v-if="subtitleFiles?.length > 0"
+          placement="top"
+          trigger="hover"
+          width="fit-content"
+          popper-class="dan-settings-popper"
+          :show-arrow="false"
+        >
+          <template #reference>
+            <button class="dan-btn">
+              <div i-carbon-chat-operational />
+            </button>
+          </template>
+          <CommentStyle :locale="locale" />
+        </ElPopover>
+
+        <ElPopover
+          v-if="assSubtitleFiles?.length > 0"
           placement="top"
           trigger="hover"
           width="fit-content"
@@ -371,21 +409,6 @@ defineExpose({
             direction="vertical"
             :options="subtitleOptions"
           />
-        </ElPopover>
-
-        <ElPopover
-          placement="top"
-          trigger="hover"
-          width="fit-content"
-          popper-class="dan-settings-popper"
-          :show-arrow="false"
-        >
-          <template #reference>
-            <button class="dan-btn">
-              <div i-carbon-chat-operational />
-            </button>
-          </template>
-          <CommentStyle :locale="locale" />
         </ElPopover>
 
         <ElPopover

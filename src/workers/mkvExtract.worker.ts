@@ -6,6 +6,8 @@ import { Buffer } from 'buffer'
 export interface SubtitleFile {
   name: string
   data: string | Uint8Array
+  language: string
+  type: 'vtt' | 'ass' | 'srt'
 }
 
 interface TrackData {
@@ -118,6 +120,8 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
 
         files.push({
           name: `${index + 1}_${language}${isASS ? '.ass' : '.srt'}`,
+          language,
+          type: isASS ? 'ass' : 'srt',
           data,
         })
       })
@@ -199,13 +203,28 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
           // Process embedded subtitle files
           if (chunk[1].name === 'FileName') {
             if (!files[currentFile])
-              files[currentFile] = { name: '', data: '' }
+              files[currentFile] = { name: '', data: '', language: '', type: 'vtt' }
             files[currentFile].name = chunk[1].data.toString()
+
+            // Determine subtitle type from file extension
+            const fileName = chunk[1].data.toString().toLowerCase()
+            if (fileName.endsWith('.ass')) {
+              files[currentFile].type = 'ass'
+            }
+            else if (fileName.endsWith('.srt')) {
+              files[currentFile].type = 'srt'
+            }
+            else {
+              files[currentFile].type = 'vtt' // Default to vtt for unknown types
+            }
           }
           if (chunk[1].name === 'FileData') {
             if (!files[currentFile])
-              files[currentFile] = { name: '', data: '' }
+              files[currentFile] = { name: '', data: '', language: '', type: 'vtt' }
             files[currentFile].data = chunk[1].data
+          }
+          if (chunk[1].name === 'Language' && files[currentFile]) {
+            files[currentFile].language = chunk[1].value || ''
           }
 
           // Only process track info when in Tracks section

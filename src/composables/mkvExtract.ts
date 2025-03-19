@@ -88,6 +88,9 @@ export function useMkvExtractWorker(file: MaybeRefOrGetter<Blob | undefined>) {
         }
       }
     }
+    else {
+      subtitleFiles.value = []
+    }
   })
 
   onUnmounted(() => {

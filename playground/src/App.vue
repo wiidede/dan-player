@@ -11,6 +11,13 @@ const comments = ref<ICommentCCL[]>()
 
 const locale = ref<'zh' | 'en'>('zh')
 
+function handleFileUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    src.value = input.files[0]
+  }
+}
+
 fetch('/dan-player-demo.mkv')
   .then(response => response.blob())
   .then((blob) => {
@@ -32,20 +39,31 @@ setTimeout(() => {
         Dan Player
       </h1>
     </div>
-    <div class="flex flex-col gap-12">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-4">
+        <label class="btn">
+          上传本地视频
+          <input
+            type="file"
+            accept="video/*,.mkv,video/x-matroska"
+            class="hidden"
+            @change="handleFileUpload"
+          >
+        </label>
+      </div>
       <DanPlayer :src="src" :comments="comments" autoplay-on-comment-load :locale="locale" />
     </div>
     <div class="flex gap-2 py-2">
-      <button @click="locale = 'zh'">
+      <button class="btn" @click="locale = 'zh'">
         中文
       </button>
-      <button @click="locale = 'en'">
+      <button class="btn" @click="locale = 'en'">
         English
       </button>
     </div>
   </main>
-  <footer class="m-auto mt8 prose">
-    <button icon-btn title="toggle dark mode" @click="toggleDark()">
+  <footer class="m-auto mt4 prose">
+    <button class="btn mb-2" title="toggle dark mode" @click="toggleDark()">
       <div i="carbon-sun dark:carbon-moon" />
     </button>
     <div class="flex gap4">
@@ -60,6 +78,6 @@ setTimeout(() => {
 
 <style scoped>
 a {
-  --at-apply: underline decoration-zinc-400/50 after: content-[ '↗'] after: text-0.8em after: op67;
+  --at-apply: link;
 }
 </style>

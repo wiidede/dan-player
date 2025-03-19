@@ -45,6 +45,7 @@ const mkvFile = computed(() => {
 const { subtitleFiles } = useMkvExtractWorker(mkvFile)
 const assSubtitleFiles = computed(() => subtitleFiles.value.filter(file => file.type === 'ass'))
 const vttSubtitleFiles = computed(() => subtitleFiles.value.filter(file => file.type === 'vtt'))
+
 const vttTracks = computed(() => [
   ...vttSubtitleFiles.value.map((file, index) => {
     const track: UseMediaTextTrackSource = {
@@ -61,6 +62,16 @@ const vttTracks = computed(() => [
 const videoContainerRef = ref<HTMLDivElement>()
 const videoRef = ref<HTMLVideoElement>()
 const commentRef = ref<HTMLDivElement>()
+
+watch(() => src, () => {
+  if (videoRef.value) {
+    // Remove all track elements from the video tag
+    const tracks = videoRef.value.getElementsByTagName('track')
+    while (tracks.length > 0) {
+      videoRef.value.removeChild(tracks[0])
+    }
+  }
+})
 
 const {
   playing,
@@ -144,12 +155,12 @@ const trackOptions = computed(() => [
   })),
 ])
 
-watch(selectedTrack, () => {
-  if (selectedTrack.value === -1)
+function onTrackChange(value: number) {
+  if (value === -1)
     disableTrack()
   else
-    enableTrack(tracks.value[selectedTrack.value])
-})
+    enableTrack(tracks.value[value])
+}
 
 function formatDuration(seconds: number) {
   return new Date(1000 * seconds).toISOString().slice(14, 19)
@@ -428,6 +439,7 @@ defineExpose({
             v-model="selectedTrack"
             direction="vertical"
             :options="trackOptions"
+            @change="onTrackChange"
           />
         </ElPopover>
 

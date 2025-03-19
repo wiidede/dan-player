@@ -58,6 +58,7 @@ export function useMkvExtractWorker(file: MaybeRefOrGetter<Blob | undefined>) {
   const isLoading = ref(false)
 
   watch(() => toValue(file), async (val) => {
+    subtitleFiles.value = []
     const isMkv = val ? await isMkvFile(val) : false
 
     if (val && isMkv) {
@@ -95,9 +96,6 @@ export function useMkvExtractWorker(file: MaybeRefOrGetter<Blob | undefined>) {
         console.error('Error loading MKV worker:', error)
         isLoading.value = false
       }
-    }
-    else {
-      subtitleFiles.value = []
     }
   })
 

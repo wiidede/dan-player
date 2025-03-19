@@ -1,4 +1,4 @@
-import { resolve } from 'node:path'
+import path, { resolve } from 'node:path'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -6,6 +6,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
   plugins: [
@@ -23,6 +24,19 @@ export default defineConfig({
     }),
 
     Unocss(),
+
+    viteStaticCopy({
+      targets: [
+        {
+          src: `${path.resolve(__dirname, 'node_modules')}/libass-wasm/dist/js/subtitles-octopus-worker.wasm`,
+          dest: '',
+        },
+        {
+          src: `${path.resolve(__dirname, 'node_modules')}/libass-wasm/dist/js/subtitles-octopus-worker.js`,
+          dest: '',
+        },
+      ],
+    }),
 
     dts({
       rollupTypes: true,

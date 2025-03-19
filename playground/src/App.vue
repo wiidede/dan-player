@@ -6,14 +6,18 @@ import { demoComments } from './demo-comments'
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
-const src = ref<string>()
+const src = ref<Blob>()
 const comments = ref<ICommentCCL[]>()
 
 const locale = ref<'zh' | 'en'>('zh')
 
-setTimeout(() => {
-  src.value = '/dan-player-demo.mkv'
-}, 1000)
+fetch('/dan-player-demo.mkv')
+  .then(response => response.blob())
+  .then((blob) => {
+    setTimeout(() => {
+      src.value = blob
+    }, 1000)
+  })
 
 setTimeout(() => {
   comments.value = demoComments
@@ -29,7 +33,6 @@ setTimeout(() => {
       </h1>
     </div>
     <div class="flex flex-col gap-12">
-      <!-- TODO: 替换成mkv -->
       <DanPlayer :src="src" :comments="comments" autoplay-on-comment-load :locale="locale" />
     </div>
     <div class="flex gap-2 py-2">

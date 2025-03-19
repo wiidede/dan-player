@@ -5,15 +5,19 @@ import { reactiveOmit, whenever } from '@vueuse/core'
 import { logicAnd } from '@vueuse/math'
 import { usePopperContainerId } from 'element-plus'
 import { version } from '../package.json'
+import { useAss } from './composables/ass'
 import { useCCL } from './composables/ccl'
+import { useMkvExtractWorker } from './composables/mkvExtract'
 import { useI18n } from './composables/useI18n'
 
 const {
+  src,
   comments,
   autoplayOnCommentLoad,
   additionalFunctions,
   locale = 'en',
 } = defineProps<{
+  src?: string | Blob
   comments?: ICommentCCL[]
   autoplayOnCommentLoad?: boolean
   additionalFunctions?: ('loop' | 'picture-in-picture')[]
@@ -24,9 +28,39 @@ const emit = defineEmits<{
   (e: 'onCommentLoad'): void
 }>()
 
+const srcUrl = computed(() => {
+  if (src instanceof Blob)
+    return URL.createObjectURL(src)
+  return src
+})
+
+const mkvFile = computed(() => {
+  if (src instanceof Blob)
+    return src
+  return undefined
+})
+
+const { subtitleFiles } = useMkvExtractWorker(mkvFile)
+
 const videoContainerRef = ref<HTMLDivElement>()
 const videoRef = ref<HTMLVideoElement>()
 const commentRef = ref<HTMLDivElement>()
+
+const currentSubtitleIndex = ref(0)
+watch (subtitleFiles, () => {
+  currentSubtitleIndex.value = 0
+})
+const currentSubtitle = computed(() => subtitleFiles.value[currentSubtitleIndex.value])
+useAss(videoRef, currentSubtitle)
+
+// Add subtitle track options
+const subtitleOptions = computed(() => [
+  { label: 'Off', value: -1 },
+  ...(subtitleFiles.value?.map((file, index) => ({
+    label: file.name || `Subtitle ${index + 1}`,
+    value: index,
+  })) || []),
+])
 
 const {
   playing,
@@ -257,6 +291,7 @@ defineExpose({
       ref="videoRef"
       muted
       playsinline
+      :src="srcUrl"
       :loop="loop"
       class="w-full outline-none"
       v-bind="reactiveOmit($attrs, 'class', 'style')"
@@ -317,6 +352,26 @@ defineExpose({
         <button class="dan-btn" @click="toggleShowComment()">
           <div :class="showComment ? 'i-carbon-chat-off' : 'i-carbon-chat'" />
         </button>
+
+        <ElPopover
+          v-if="subtitleFiles?.length > 0"
+          placement="top"
+          trigger="hover"
+          width="fit-content"
+          popper-class="dan-settings-popper bg-op"
+          :show-arrow="false"
+        >
+          <template #reference>
+            <button class="dan-btn">
+              <div i-carbon-closed-caption :class="currentSubtitleIndex !== -1 ? 'text-primary-500' : ''" />
+            </button>
+          </template>
+          <ElSegmented
+            v-model="currentSubtitleIndex"
+            direction="vertical"
+            :options="subtitleOptions"
+          />
+        </ElPopover>
 
         <ElPopover
           placement="top"
@@ -511,6 +566,18 @@ defineExpose({
   word-break: keep-all;
   margin-top: 8px;
   font-size: 12px;
+}
+
+.dan-player .libassjs-canvas-parent {
+  position: absolute !important;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.dan-player .libassjs-canvas {
+  top: 0 !important;
+  left: 0 !important;
 }
 </style>
 

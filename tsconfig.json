@@ -8,7 +8,8 @@
     "resolveJsonModule": true,
     "types": [
       "vitest",
-      "vite/client"
+      "vite/client",
+      "@hrgui/libass-wasm-ts"
     ],
     "allowJs": true,
     "strict": true,

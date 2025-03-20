@@ -1,9 +1,8 @@
-import path, { resolve } from 'node:path'
+import { resolve } from 'node:path'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
   plugins: [
@@ -11,27 +10,14 @@ export default defineConfig({
 
     Unocss(),
 
-    viteStaticCopy({
-      targets: [
-        {
-          src: `${path.resolve(__dirname, 'node_modules')}/libass-wasm/dist/js/subtitles-octopus-worker.wasm`,
-          dest: '',
-        },
-        {
-          src: `${path.resolve(__dirname, 'node_modules')}/libass-wasm/dist/js/subtitles-octopus-worker.js`,
-          dest: '',
-        },
-      ],
-    }),
-
     dts({
       rollupTypes: true,
+      include: ['src/**/*.ts', 'src/**/*.vue'],
     }),
   ],
   worker: {
     format: 'es',
     rollupOptions: {
-      external: ['ebml'],
       output: {
         format: 'es',
       },
@@ -41,9 +27,15 @@ export default defineConfig({
     sourcemap: true,
     lib: {
       formats: ['es'],
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: {
+        'index': resolve(__dirname, 'src/index.ts'),
+        'resolver/index': resolve(__dirname, 'src/resolver.ts'),
+      },
       name: '@wiidede/dan-player',
-      fileName: 'index',
+      fileName: (format, entryName) => {
+        return `${entryName}.js`
+      },
+      cssFileName: 'index',
     },
     rollupOptions: {
       external: ['vue'],
@@ -51,15 +43,6 @@ export default defineConfig({
         globals: {
           vue: 'Vue',
         },
-      },
-    },
-  },
-  optimizeDeps: {
-    include: ['ebml'],
-    esbuildOptions: {
-      target: 'es2020',
-      supported: {
-        'dynamic-import': true,
       },
     },
   },

@@ -609,18 +609,6 @@ defineExpose({
   margin-top: 8px;
   font-size: 12px;
 }
-
-.dan-player .libassjs-canvas-parent {
-  position: absolute !important;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.dan-player .libassjs-canvas {
-  top: 0 !important;
-  left: 0 !important;
-}
 </style>
 
 <style scoped>

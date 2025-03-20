@@ -20,6 +20,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./resolver": {
+      "types": "./dist/resolver/index.d.ts",
+      "import": "./dist/resolver/index.js"
+    },
     "./index.css": "./dist/index.css"
   },
   "main": "./dist/index.js",
@@ -59,14 +63,12 @@
     "@wiidede/comment-core-library": "^0.2.0",
     "@wiidede/ebml": "^0.1.1",
     "assjs": "^0.1.4",
-    "element-plus": "^2.9.6",
-    "libass-wasm": "^4.1.0"
+    "element-plus": "^2.9.6"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.10.1",
     "@antfu/ni": "^24.3.0",
     "@antfu/utils": "^9.1.0",
-    "@hrgui/libass-wasm-ts": "^1.0.3",
     "@iconify-json/carbon": "^1.2.8",
     "@iconify/utils": "^2.3.0",
     "@types/ebml": "^3.0.5",

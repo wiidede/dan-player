@@ -4,13 +4,14 @@
 [![JSDocs][jsdocs-src]][jsdocs-href]
 [![License][license-src]][license-href]
 
-# Dan Player(WIP)
+# Dan Player
 
 <a href="https://dan.wiidede.space/" target="_blank" >
 <img alt="Dan Player Logo" src="./playground/public/favicon.svg" width="100px" height="100px">
 </a>
 
-Dan Player 是一个基于 Vue 开发的弹幕播放器组件
+Dan Player 是一个基于 Vue 开发的弹幕播放器组件，支持MKV格式，支持ASS、SRT字幕
+Dan Player is a bullet screen player component developed based on Vue, supporting MKV format, and supporting ASS, SRT subtitles.
 
 ## Features
 
@@ -18,16 +19,23 @@ Dan Player 是一个基于 Vue 开发的弹幕播放器组件
 - 弹幕功能（基于Comment Core Library）
 - 键盘快捷键
 - 国际化，支持中文、英文已经自定义
+- 支持 MKV 格式，读取srt、ass字幕 by [@wiidede/ebml](https://github.com/wiidede/ebml)
+- ass字幕显示 by [ASS.js](https://github.com/weizhenye/ASS)
+
+- Basic functions: play, control
+- Danmaku feature (based on Comment Core Library)
+- Keyboard shortcuts
+- Internationalization, supports Chinese, English and customization
+- Supports MKV format, reads srt, ass subtitles by [@wiidede/ebml](https://github.com/wiidede/ebml)
+- ass subtitle display by [ASS.js](https://github.com/weizhenye/ASS)
 
 ## Demo
 
-[Online Demo](https://dan.wiidede.space)
+[Online Demo 在线演示](https://dan.wiidede.space)
 
 ## Quick Start
 
 ### 1. Installation
-
-First, make sure your Vue project has the necessary dependencies installed. Then, add Dan Player to your project using your preferred package manager.
 
 ```bash
 pnpm add @wiidede/dan-player
@@ -79,6 +87,14 @@ declare module 'vue' {
     DanPlayer: typeof import('dan-player')['default']
   }
 }
+```
+
+unplugin-vue-components
+
+```ts
+import { DanPlayerResolver } from '@wiidede/dan-player/resolver'
+
+// and then add `DanPlayerResolver()` into resolvers
 ```
 
 ## Props

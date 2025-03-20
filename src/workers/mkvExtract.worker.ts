@@ -1,3 +1,4 @@
+import type { StateAndTagData } from '@wiidede/ebml'
 import { Decoder, Tools } from '@wiidede/ebml'
 
 export interface SubtitleFile {
@@ -161,7 +162,7 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
     const reader = decoder.stream.readable.getReader()
 
     // Process decoded chunks
-    const processChunk = async ({ done, value }: { done: boolean, value?: [string, any] }): Promise<void> => {
+    const processChunk = async ({ done, value }: { done: boolean, value?: StateAndTagData }): Promise<void> => {
       if (done) {
         processTrackData()
         return
@@ -211,10 +212,10 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
           if (chunk.name === 'FileName') {
             if (!files[currentFile])
               files[currentFile] = { name: '', data: '', language: '', type: 'vtt' }
-            files[currentFile].name = chunk.data.toString()
+            files[currentFile].name = new TextDecoder('utf-8').decode(chunk.data)
 
             // Determine subtitle type from file extension
-            const fileName = chunk.data.toString().toLowerCase()
+            const fileName = new TextDecoder('utf-8').decode(chunk.data).toLowerCase()
             if (fileName.endsWith('.ass')) {
               files[currentFile].type = 'ass'
             }
@@ -241,7 +242,7 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
             if (chunk.name === 'TrackType')
               trackTypeTemp = chunk.data[0]
             if (chunk.name === 'CodecPrivate')
-              trackHeadingTemp = chunk.data.toString()
+              trackHeadingTemp = new TextDecoder('utf-8').decode(chunk.data)
             if (chunk.name === 'Language')
               trackLanguageTemp = chunk.value
           }

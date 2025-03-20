@@ -98,7 +98,7 @@ export function useMkvExtractWorker(file: MaybeRefOrGetter<Blob | undefined>) {
         isLoading.value = false
       }
     }
-  })
+  }, { immediate: true })
 
   onUnmounted(() => {
     if (!worker)

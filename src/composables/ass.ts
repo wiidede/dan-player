@@ -34,7 +34,7 @@ export function useAss(video: MaybeRefOrGetter<HTMLVideoElement | undefined>, su
       container: container.value,
       resampling: 'video_height', // default behavior
     })
-  })
+  }, { immediate: true })
 
   onUnmounted(() => {
     if (ass)

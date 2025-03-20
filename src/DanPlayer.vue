@@ -609,6 +609,26 @@ defineExpose({
   margin-top: 8px;
   font-size: 12px;
 }
+
+::cue {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  font-size: 1.6rem;
+  line-height: 1.5;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+::cue(b) {
+  font-weight: bold;
+}
+
+::cue(i) {
+  font-style: italic;
+}
+
+::cue(u) {
+  text-decoration: underline;
+}
 </style>
 
 <style scoped>

@@ -1,7 +1,7 @@
 {
   "name": "@wiidede/dan-player",
   "type": "module",
-  "version": "0.2.0-beta.2",
+  "version": "0.2.0",
   "packageManager": "pnpm@10.6.5",
   "description": "Dan Player is a bullet screen player component developed based on Vue, supporting MKV format, and supporting ASS, SRT subtitles.Dan Player 是一个基于 Vue 开发的弹幕播放器组件，支持MKV格式，支持ASS、SRT字幕",
   "author": "wiidede <wiixdede@gmail.com>",

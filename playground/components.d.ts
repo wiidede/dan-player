@@ -8,8 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    CommentStyle: typeof import('./../src/components/CommentStyle.vue')['default']
     DanPlayer: typeof import('@wiidede/dan-player')['DanPlayer']
-    Scrubber: typeof import('./../src/components/Scrubber.vue')['default']
   }
 }

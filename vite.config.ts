@@ -28,6 +28,15 @@ export default defineConfig({
       rollupTypes: true,
     }),
   ],
+  worker: {
+    format: 'es',
+    rollupOptions: {
+      external: ['ebml'],
+      output: {
+        format: 'es',
+      },
+    },
+  },
   build: {
     sourcemap: true,
     lib: {
@@ -49,6 +58,15 @@ export default defineConfig({
           vue: 'Vue',
           assjs: 'ASS',
         },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ['ebml'],
+    esbuildOptions: {
+      target: 'es2020',
+      supported: {
+        'dynamic-import': true,
       },
     },
   },

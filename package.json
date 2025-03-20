@@ -57,9 +57,8 @@
     "@vueuse/core": "^13.0.0",
     "@vueuse/math": "^13.0.0",
     "@wiidede/comment-core-library": "^0.2.0",
+    "@wiidede/ebml": "^0.1.1",
     "assjs": "^0.1.4",
-    "buffer": "^6.0.3",
-    "ebml": "^3.0.0",
     "element-plus": "^2.9.6",
     "libass-wasm": "^4.1.0"
   },

@@ -71,7 +71,6 @@ export function useMkvExtractWorker(file: MaybeRefOrGetter<Blob | undefined>) {
         if (!worker) {
           const { default: Worker } = await import('../workers/mkvExtract.worker?worker&inline')
           worker = new Worker()
-
           worker.onmessage = (e: MessageEvent<{ type: 'error' | 'success', files: Error | SubtitleFile[] }>) => {
             if (e.data.type === 'error') {
               console.error(e.data)

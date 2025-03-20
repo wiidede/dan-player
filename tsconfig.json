@@ -11,7 +11,7 @@
       "vite/client",
       "@hrgui/libass-wasm-ts"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "strict": true,
     "strictNullChecks": true,
     "outDir": "./dist",

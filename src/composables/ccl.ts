@@ -1,8 +1,8 @@
-import type { MaybeRef, Ref } from 'vue'
+import type { MaybeRef, MaybeRefOrGetter, Ref } from 'vue'
 import type { ICommentCCL } from '../type'
 import { unrefElement, useElementSize, useToggle } from '@vueuse/core'
 import { CommentManager } from '@wiidede/comment-core-library'
-import { watch, watchEffect } from 'vue'
+import { toValue, watch, watchEffect } from 'vue'
 import { usePreference } from './preference'
 import '@wiidede/comment-core-library/style.css'
 

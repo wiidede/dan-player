@@ -41,7 +41,7 @@ pnpm add @wiidede/dan-player
 <script setup lang="ts">
 import DanPlayer from '@wiidede/dan-player'
 import { ref } from 'vue'
-import '@wiidede/dan-player/dist/style.css' // Import the component's stylesheet
+import '@wiidede/dan-player/dist/index.css' // Import the component's stylesheet
 
 const comments = ref([
   // Fill in your actual comment data here, following the format of ICommentCCL type
@@ -66,7 +66,7 @@ const locale = ref('en')
 import DanPlayer from '@wiidede/dan-player'
 // main.ts
 import { createApp } from 'vue'
-import '@wiidede/dan-player/dist/style.css'
+import '@wiidede/dan-player/dist/index.css'
 
 const app = createApp(App)
 app.component('DanPlayer', DanPlayer)

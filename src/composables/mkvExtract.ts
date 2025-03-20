@@ -1,4 +1,6 @@
+import type { MaybeRefOrGetter } from 'vue'
 import type { SubtitleFile } from '../workers/mkvExtract.worker'
+import { onUnmounted, ref, toValue, watch } from 'vue'
 
 function srt2vtt(srt: string) {
   // Create VTT header

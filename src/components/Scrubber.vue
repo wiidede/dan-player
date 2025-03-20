@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useEventListener, useMouseInElement, useVModel } from '@vueuse/core'
+import { ElTooltip } from 'element-plus'
+import { computed, ref, watch } from 'vue'
+import 'element-plus/theme-chalk/el-tooltip.css'
+
 const props = withDefaults(defineProps<{
   min?: number
   max?: number
@@ -65,7 +70,7 @@ watch([scrubbing, elementX], () => {
         :style="{ transform: `translateX(${value / max * 100 - 100}%)` }"
       />
     </div>
-    <el-tooltip
+    <ElTooltip
       :visible="!isOutside"
       :content="tooltipContent"
       placement="top"

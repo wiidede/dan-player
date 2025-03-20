@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import type { I18nLocale, I18nMessages } from '../composables/useI18n'
+import { ElInputNumber, ElSegmented, ElSlider } from 'element-plus'
+import { computed, watchEffect } from 'vue'
 import { usePreference } from '../composables/preference'
 import { useI18n } from '../composables/useI18n'
 import { commentShadowMap } from '../constants/comment'
+import 'element-plus/theme-chalk/el-input-number.css'
+import 'element-plus/theme-chalk/el-input.css'
+import 'element-plus/theme-chalk/el-segmented.css'
+import 'element-plus/theme-chalk/el-slider.css'
 
 const {
   locale,
@@ -56,21 +62,21 @@ watchEffect(() => {
 <template>
   <div class="config-container w70">
     <div>{{ t.notTransparent }}</div>
-    <el-slider v-model="commentOpacity" :min="10" :max="100" :format-tooltip="val => `${val}%`" />
+    <ElSlider v-model="commentOpacity" :min="10" :max="100" :format-tooltip="val => `${val}%`" />
     <div>{{ t.displayArea }}</div>
-    <el-slider v-model="commentHeight" :min="25" :max="100" :step="25" :format-tooltip="heightFormatter" :marks="heightMap" mb-1 />
+    <ElSlider v-model="commentHeight" :min="25" :max="100" :step="25" :format-tooltip="heightFormatter" :marks="heightMap" mb-1 />
     <div>{{ t.barrageSpeed }}</div>
-    <el-slider v-model="commentSpeed" :min="0.3" :max="2" :step="0.1" />
+    <ElSlider v-model="commentSpeed" :min="0.3" :max="2" :step="0.1" />
     <div>{{ t.fontSize }}</div>
-    <el-slider v-model="commentSize" :min="10" :max="128" />
+    <ElSlider v-model="commentSize" :min="10" :max="128" />
     <div>{{ t.barrageWeight }}</div>
-    <el-slider v-model="commentWeight" :min="100" :max="900" :step="100" />
+    <ElSlider v-model="commentWeight" :min="100" :max="900" :step="100" />
     <div>{{ t.sameScreenNumber }}</div>
-    <el-slider v-model="commentLimit" :min="0" :max="200" :step="1" :format-tooltip="limitFormatter" :marks="limitMap" mb-1 />
+    <ElSlider v-model="commentLimit" :min="0" :max="200" :step="1" :format-tooltip="limitFormatter" :marks="limitMap" mb-1 />
     <div>{{ t.barrageShadow }}</div>
-    <el-segmented v-model="commentShadow" :options="commentShadowOptions" size="small" />
+    <ElSegmented v-model="commentShadow" :options="commentShadowOptions" size="small" />
     <div>{{ t.barrageOffset }}</div>
-    <el-input-number v-model="commentOffset" :precision="1" :step="1" size="small" />
+    <ElInputNumber v-model="commentOffset" :precision="1" :step="1" size="small" />
   </div>
 </template>
 

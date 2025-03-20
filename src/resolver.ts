@@ -23,7 +23,7 @@ export function DanPlayerResolver(option: DanPlayerResolverOptions = {}): Compon
           name: 'DanPlayer',
           as: name,
           from: '@wiidede/dan-player',
-          sideEffects: '@wiidede/dan-player/style.css',
+          sideEffects: '@wiidede/dan-player/index.css',
         }
       }
     },

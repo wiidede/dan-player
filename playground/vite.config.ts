@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => ({
     {
       name: 'blank',
       load(id) {
-        if (mode === 'play' && id.endsWith('@wiidede/dan-player/style.css'))
+        if (mode === 'play' && id.endsWith('@wiidede/dan-player/index.css'))
           return ''
       },
     },

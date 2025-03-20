@@ -1,5 +1,7 @@
 import type { SubtitleFile } from 'src/workers/mkvExtract.worker'
+import type { MaybeRefOrGetter } from 'vue'
 import ASS from 'assjs'
+import { onUnmounted, ref, toValue, watch } from 'vue'
 
 export function useAss(video: MaybeRefOrGetter<HTMLVideoElement | undefined>, subtitles: MaybeRefOrGetter<SubtitleFile | undefined>) {
   let ass: InstanceType<typeof ASS> | undefined

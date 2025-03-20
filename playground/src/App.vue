@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ICommentCCL } from '../../src/type'
 import { useDark, useToggle } from '@vueuse/core'
+import { ref } from 'vue'
 import { demoComments } from './demo-comments'
 
 const isDark = useDark()

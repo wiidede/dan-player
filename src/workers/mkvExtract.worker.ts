@@ -5,7 +5,7 @@ export interface SubtitleFile {
   name: string
   data: string | Uint8Array
   language: string
-  type: 'vtt' | 'ass' | 'srt'
+  type: string
 }
 
 interface TrackData {
@@ -59,14 +59,120 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
     let trackIndex: number
     let inTracksSection = false
     let foundSubtitleTrack = false
-    let collectedEnoughData = false
-    const entryCounts = new Map<number, number>()
-    const MAX_ENTRIES_PER_TRACK = 1000
-    const MIN_ENTRIES_THRESHOLD = 50
-    let emptyChunksCounter = 0
-    const MAX_EMPTY_CHUNKS = 10000
-    const abortController = new AbortController()
-    const signal = abortController.signal
+
+    // Get a reader for the decoder output
+    const reader = decoder.stream.readable.getReader()
+
+    // Process decoded chunks
+    const processChunk = async ({ done, value }: { done: boolean, value?: StateAndTagData }): Promise<void> => {
+      if (done) {
+        return
+      }
+
+      if (!value)
+        return reader.read().then(processChunk)
+
+      const [type, chunk] = value
+
+      // Track sections detection
+      if (type === 'start' && chunk.name === 'Tracks') {
+        inTracksSection = true
+      }
+      else if (type === 'end' && chunk.name === 'Tracks') {
+        inTracksSection = false
+        if (tracks.length > 0) {
+          foundSubtitleTrack = true
+        }
+      }
+
+      // Skip processing non-subtitle chunks if we're not in tracks section
+      if (!inTracksSection && !foundSubtitleTrack && chunk.name !== 'Tracks') {
+        return reader.read().then(processChunk)
+      }
+
+      switch (type) {
+        case 'end':
+          if (chunk.name === 'TrackEntry' && inTracksSection) {
+            // Process track entry (1=video, 2=audio, 17=subtitle)
+            if (trackTypeTemp === 17) {
+              tracks.push(trackIndexTemp)
+              trackData.push({ heading: trackHeadingTemp, language: trackLanguageTemp, entries: [] })
+            }
+          }
+          break
+        case 'tag':
+          // Process embedded subtitle files
+          if (chunk.name === 'FileName') {
+            const fileName = new TextDecoder('utf-8').decode(chunk.data)
+            const fileNameExt = fileName.split('.').pop()?.toLowerCase()
+            if (fileNameExt && ['srt', 'ass', 'vtt'].includes(fileNameExt)) {
+              if (!files[currentFile])
+                files[currentFile] = { name: fileName, data: '', language: '', type: fileNameExt }
+              files[currentFile].data = chunk.data
+              files[currentFile].type = fileNameExt
+            }
+          }
+          if (chunk.name === 'FileData' && files[currentFile]) {
+            files[currentFile].data = chunk.data
+          }
+          if (chunk.name === 'Language' && files[currentFile]) {
+            files[currentFile].language = chunk.value || ''
+          }
+
+          // Only process track info when in Tracks section
+          if (inTracksSection) {
+            if (chunk.name === 'TrackNumber')
+              trackIndexTemp = chunk.data[0]
+            if (chunk.name === 'TrackType')
+              trackTypeTemp = chunk.data[0]
+            if (chunk.name === 'CodecPrivate')
+              trackHeadingTemp = new TextDecoder('utf-8').decode(chunk.data)
+            if (chunk.name === 'Language')
+              trackLanguageTemp = chunk.value
+          }
+
+          // Only process subtitle data if we've found subtitle tracks
+          if (foundSubtitleTrack) {
+            if (chunk.name === 'SimpleBlock' || chunk.name === 'Block') {
+              const trackLength = Tools.readVint(chunk.data)
+              trackIndex = tracks.indexOf(trackLength.value)
+              if (trackIndex !== -1) {
+                const timestampArray = new Uint8Array(chunk.data).slice(
+                  trackLength.length,
+                  trackLength.length + 2,
+                )
+                const timestamp = new DataView(timestampArray.buffer).getInt16(0)
+                const lineData = chunk.data.slice(trackLength.length + 3)
+                // Convert Uint8Array to string using TextDecoder
+                const text = new TextDecoder('utf-8').decode(lineData)
+                trackData[trackIndex].entries.push(
+                  text,
+                  timestamp,
+                  currentTimecode,
+                )
+              }
+            }
+            if (chunk.name === 'Timecode') {
+              currentTimecode = readUnsignedInteger(padZeroes(chunk.data))
+            }
+            if (chunk.name === 'BlockDuration' && trackIndex !== -1) {
+              const duration = readUnsignedInteger(padZeroes(chunk.data))
+              trackData[trackIndex].entries.push(duration)
+            }
+          }
+          break
+      }
+
+      if (files[currentFile]?.name && files[currentFile]?.data) {
+        currentFile++
+      }
+
+      // Continue reading
+      return reader.read().then(processChunk)
+    }
+
+    // Start processing chunks
+    reader.read().then(processChunk)
 
     // Function to process collected track data and create subtitle files
     const processTrackData = () => {
@@ -128,214 +234,20 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
         reject(new Error('No data found'))
         return
       }
-
       resolve(files)
     }
 
-    // Check if we've collected enough subtitle data to stop processing
-    const checkIfDone = () => {
-      if (tracks.length === 0 || collectedEnoughData)
-        return false
-
-      let allTracksHaveMinEntries = true
-      let anyTrackHasMaxEntries = false
-
-      tracks.forEach((_, index) => {
-        const entryCount = entryCounts.get(index) || 0
-        if (entryCount < MIN_ENTRIES_THRESHOLD) {
-          allTracksHaveMinEntries = false
-        }
-        if (entryCount >= MAX_ENTRIES_PER_TRACK) {
-          anyTrackHasMaxEntries = true
-        }
-      })
-
-      if (allTracksHaveMinEntries || anyTrackHasMaxEntries || emptyChunksCounter > MAX_EMPTY_CHUNKS) {
-        collectedEnoughData = true
-        return true
-      }
-
-      return false
-    }
-
-    // Get a reader for the decoder output
-    const reader = decoder.stream.readable.getReader()
-
-    // Process decoded chunks
-    const processChunk = async ({ done, value }: { done: boolean, value?: StateAndTagData }): Promise<void> => {
-      if (done) {
-        processTrackData()
-        return
-      }
-
-      if (!value)
-        return reader.read().then(processChunk)
-
-      const [type, chunk] = value
-
-      // Skip processing if we've collected enough data
-      if (collectedEnoughData) {
-        if (chunk.name === 'FileName' || chunk.name === 'FileData') {
-          // Continue processing these chunks for embedded subtitle files
-        }
-        else {
-          return reader.read().then(processChunk) // Skip all other chunks
-        }
-      }
-
-      // Track sections detection
-      if (type === 'start' && chunk.name === 'Tracks') {
-        inTracksSection = true
-      }
-      else if (type === 'end' && chunk.name === 'Tracks') {
-        inTracksSection = false
-        if (tracks.length > 0) {
-          foundSubtitleTrack = true
-          tracks.forEach((_, index) => entryCounts.set(index, 0))
-        }
-      }
-
-      let processedSubtitleData = false
-
-      switch (type) {
-        case 'end':
-          if (chunk.name === 'TrackEntry' && inTracksSection) {
-            // Process track entry (1=video, 2=audio, 17=subtitle)
-            if (trackTypeTemp === 17) {
-              tracks.push(trackIndexTemp)
-              trackData.push({ heading: trackHeadingTemp, language: trackLanguageTemp, entries: [] })
-            }
-          }
-          break
-        case 'tag':
-          // Process embedded subtitle files
-          if (chunk.name === 'FileName') {
-            if (!files[currentFile])
-              files[currentFile] = { name: '', data: '', language: '', type: 'vtt' }
-            files[currentFile].name = new TextDecoder('utf-8').decode(chunk.data)
-
-            // Determine subtitle type from file extension
-            const fileName = new TextDecoder('utf-8').decode(chunk.data).toLowerCase()
-            if (fileName.endsWith('.ass')) {
-              files[currentFile].type = 'ass'
-            }
-            else if (fileName.endsWith('.srt')) {
-              files[currentFile].type = 'srt'
-            }
-            else {
-              files[currentFile].type = 'vtt' // Default to vtt for unknown types
-            }
-          }
-          if (chunk.name === 'FileData') {
-            if (!files[currentFile])
-              files[currentFile] = { name: '', data: '', language: '', type: 'vtt' }
-            files[currentFile].data = chunk.data
-          }
-          if (chunk.name === 'Language' && files[currentFile]) {
-            files[currentFile].language = chunk.value || ''
-          }
-
-          // Only process track info when in Tracks section
-          if (inTracksSection) {
-            if (chunk.name === 'TrackNumber')
-              trackIndexTemp = chunk.data[0]
-            if (chunk.name === 'TrackType')
-              trackTypeTemp = chunk.data[0]
-            if (chunk.name === 'CodecPrivate')
-              trackHeadingTemp = new TextDecoder('utf-8').decode(chunk.data)
-            if (chunk.name === 'Language')
-              trackLanguageTemp = chunk.value
-          }
-
-          // Only process subtitle data if we've found subtitle tracks
-          if (foundSubtitleTrack) {
-            if (chunk.name === 'SimpleBlock' || chunk.name === 'Block') {
-              const trackLength = Tools.readVint(chunk.data)
-              trackIndex = tracks.indexOf(trackLength.value)
-              if (trackIndex !== -1) {
-                const timestampArray = new Uint8Array(chunk.data).slice(
-                  trackLength.length,
-                  trackLength.length + 2,
-                )
-                const timestamp = new DataView(timestampArray.buffer).getInt16(0)
-                const lineData = chunk.data.slice(trackLength.length + 3)
-                // Convert Uint8Array to string using TextDecoder
-                const text = new TextDecoder('utf-8').decode(lineData)
-                trackData[trackIndex].entries.push(
-                  text,
-                  timestamp,
-                  currentTimecode,
-                )
-
-                // Update entry count and check if we can stop processing
-                const currentCount = entryCounts.get(trackIndex) || 0
-                entryCounts.set(trackIndex, currentCount + 1)
-                processedSubtitleData = true
-
-                if (checkIfDone()) {
-                  abortController.abort()
-                  processTrackData()
-                  return
-                }
-              }
-            }
-            if (chunk.name === 'Timecode') {
-              currentTimecode = readUnsignedInteger(padZeroes(chunk.data))
-            }
-            if (chunk.name === 'BlockDuration' && trackIndex !== -1) {
-              const duration = readUnsignedInteger(padZeroes(chunk.data))
-              trackData[trackIndex].entries.push(duration)
-            }
-          }
-          break
-      }
-
-      // Track empty chunks to help decide when to stop early
-      if (foundSubtitleTrack && !processedSubtitleData) {
-        emptyChunksCounter++
-        if (emptyChunksCounter % 10000 === 0) {
-          let allTracksHaveSomeData = true
-          tracks.forEach((_, index) => {
-            if ((entryCounts.get(index) || 0) < 10) {
-              allTracksHaveSomeData = false
-            }
-          })
-
-          if (allTracksHaveSomeData && checkIfDone()) {
-            abortController.abort()
-            processTrackData()
-            return
-          }
-        }
-      }
-
-      if (files[currentFile]?.name && files[currentFile]?.data) {
-        currentFile++
-      }
-
-      // Continue reading
-      return reader.read().then(processChunk)
-    }
-
-    // Start processing chunks
-    reader.read().then(processChunk)
-
-    // Use AbortController to enable early termination
+    // Process the stream
     stream.pipeTo(new WritableStream({
       write(chunk) {
-        if (signal.aborted)
-          return
         decoder.write(chunk)
       },
       close() {
-        if (!signal.aborted) {
-          decoder.end()
-        }
+        processTrackData()
+        decoder.end()
       },
-    }), { signal }).catch((error) => {
-      if (error.name !== 'AbortError') {
-        reject(error)
-      }
+    })).catch((error) => {
+      reject(error)
     })
   })
 }

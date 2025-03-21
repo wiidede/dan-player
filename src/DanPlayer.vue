@@ -2,7 +2,7 @@
 import type { UseMediaTextTrackSource } from '@vueuse/core'
 import type { I18nLocale, I18nMessages } from './composables/useI18n'
 import type { ICommentCCL } from './type'
-import { reactiveOmit, useActiveElement, useFullscreen, useIdle, useMagicKeys, useMediaControls, useMouseInElement, useToggle, whenever } from '@vueuse/core'
+import { reactiveOmit, useActiveElement, useElementSize, useFullscreen, useIdle, useMagicKeys, useMediaControls, useMouseInElement, useToggle, whenever } from '@vueuse/core'
 import { logicAnd } from '@vueuse/math'
 import { ElDialog, ElPopover, ElSegmented, ElSlider, usePopperContainerId } from 'element-plus'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
@@ -69,6 +69,9 @@ const vttTracks = computed(() => [
 const videoContainerRef = ref<HTMLDivElement>()
 const videoRef = ref<HTMLVideoElement>()
 const commentRef = ref<HTMLDivElement>()
+const assRef = ref<HTMLDivElement>()
+
+const { width: videoWidth, height: videoHeight } = useElementSize(videoRef)
 
 watch(() => src, () => {
   if (videoRef.value) {
@@ -106,7 +109,7 @@ watch (subtitleFiles, () => {
 })
 const currentSubtitle = computed(() => assSubtitleFiles.value[currentSubtitleIndex.value])
 
-useAss(videoRef, computed(() =>
+useAss(videoRef, assRef, computed(() =>
   currentSubtitle.value && currentSubtitle.value.name.endsWith('.ass')
     ? currentSubtitle.value
     : undefined,
@@ -339,6 +342,11 @@ defineExpose({
       @click="togglePlay()"
     />
     <div ref="commentRef" class="comment-container of-hidden" />
+    <div
+      ref="assRef"
+      class="ass-container pointer-events-none absolute"
+      :style="{ width: `${videoWidth}px`, height: `${videoHeight}px` }"
+    />
 
     <div
       v-if="waiting"

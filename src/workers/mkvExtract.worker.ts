@@ -3,7 +3,7 @@ import { Decoder, Tools } from '@wiidede/ebml'
 
 export interface SubtitleFile {
   name: string
-  data: string | Uint8Array
+  data: string
   language: string
   type: string
 }
@@ -108,12 +108,12 @@ async function handleStream(stream: ReadableStream<Uint8Array>): Promise<Subtitl
             if (fileNameExt && ['srt', 'ass', 'vtt'].includes(fileNameExt)) {
               if (!files[currentFile])
                 files[currentFile] = { name: fileName, data: '', language: '', type: fileNameExt }
-              files[currentFile].data = chunk.data
+              files[currentFile].data = new TextDecoder('utf-8').decode(chunk.data)
               files[currentFile].type = fileNameExt
             }
           }
           if (chunk.name === 'FileData' && files[currentFile]) {
-            files[currentFile].data = chunk.data
+            files[currentFile].data = new TextDecoder('utf-8').decode(chunk.data)
           }
           if (chunk.name === 'Language' && files[currentFile]) {
             files[currentFile].language = chunk.value || ''

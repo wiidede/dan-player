@@ -99,13 +99,13 @@ import { DanPlayerResolver } from '@wiidede/dan-player/resolver'
 
 ## Props
 
-| Name                   | Type                                                                                | Description                                                                                                  | Default                                                                                                                        |
-| ---------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ------ |
-| comments               | `ICommentCCL[]` (assuming this is the correct type for comment data)                | An array containing the comment data to be displayed as CCL.                                                 | `undefined`                                                                                                                    |
-| autoplayOnCommentLoad  | `boolean`                                                                           | A boolean flag indicating whether the video should automatically start playing once the comments are loaded. | `false`                                                                                                                        |
-| additionalFunctions    | `('loop'                                                                            | 'picture-in-picture')[]`                                                                                     | An array specifying additional functions to enable for the player, such as loop playback and Picture-in-Picture mode.          | `[]`   |
-| locale                 | `I18nLocale                                                                         | I18nMessages` (based on your actual i18n type definitions)                                                   | The language setting for internationalization. It determines which language's text content will be displayed in the component. | `'en'` |
-| (other relevant props) | (describe the types and purposes of other props if there are more in the component) | (provide detailed descriptions for each additional prop)                                                     | (default values)                                                                                                               |
+| Name                  | Type                                 | Description                                                                                                                    | Default     |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| comments              | `ICommentCCL[]`                      | An array containing the comment data to be displayed as CCL.                                                                   | `undefined` |
+| autoplayOnCommentLoad | `boolean`                            | A boolean flag indicating whether the video should automatically start playing once the comments are loaded.                   | `false`     |
+| additionalFunctions   | `('loop' \| 'picture-in-picture')[]` | An array specifying additional functions to enable for the player, such as loop playback and Picture-in-Picture mode.          | `[]`        |
+| locale                | `I18nLocale \| I18nMessages`         | The language setting for internationalization. It determines which language's text content will be displayed in the component. | `'en'`      |
+| src                   | `string \| Blob`                     | The source URL or Blob object of the video to be played.                                                                       | `undefined` |
 
 ## Events
 

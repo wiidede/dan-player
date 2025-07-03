@@ -328,7 +328,7 @@ defineExpose({
 <template>
   <div
     ref="videoContainerRef"
-    class="dan-player ccl-player relative flex-center overflow-hidden bg-black container"
+    class="dan-player ccl-player container relative flex-center overflow-hidden bg-black"
     :class="{ 'cursor-none': idle }"
   >
     <video

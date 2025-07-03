@@ -1,8 +1,8 @@
 import { resolve } from 'node:path'
 import Vue from '@vitejs/plugin-vue'
 import Unocss from 'unocss/vite'
+import dts from 'unplugin-dts/vite'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 export default defineConfig({
   plugins: [
@@ -11,8 +11,7 @@ export default defineConfig({
     Unocss(),
 
     dts({
-      rollupTypes: true,
-      include: ['src/**/*.ts', 'src/**/*.vue'],
+      bundleTypes: true,
     }),
   ],
   worker: {
@@ -28,8 +27,8 @@ export default defineConfig({
     lib: {
       formats: ['es'],
       entry: {
-        'index': resolve(__dirname, 'src/index.ts'),
-        'resolver/index': resolve(__dirname, 'src/resolver.ts'),
+        index: resolve(__dirname, 'src/index.ts'),
+        resolver: resolve(__dirname, 'src/resolver.ts'),
       },
       name: '@wiidede/dan-player',
       fileName: (format, entryName) => {
@@ -45,9 +44,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  test: {
-    include: ['test/**/*.test.ts'],
-    environment: 'jsdom',
   },
 })

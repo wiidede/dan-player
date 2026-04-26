@@ -9,6 +9,7 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { version } from '../package.json'
 import CommentStyle from './components/CommentStyle.vue'
 import Scrubber from './components/Scrubber.vue'
+import SubtitleStyle from './components/SubtitleStyle.vue'
 import { useAss } from './composables/ass'
 import { useCCL } from './composables/ccl'
 import { useMkvExtractWorker } from './composables/mkvExtract'
@@ -443,7 +444,7 @@ defineExpose({
           placement="top"
           trigger="hover"
           width="fit-content"
-          popper-class="dan-settings-popper bg-op"
+          popper-class="dan-settings-popper"
           :show-arrow="false"
         >
           <template #reference>
@@ -451,13 +452,16 @@ defineExpose({
               <div i-carbon-closed-caption :class="selectedTrack !== -1 ? 'text-primary-500' : ''" />
             </button>
           </template>
-          <ElSegmented
-            v-model="selectedTrack"
-            direction="vertical"
-            :options="trackOptions"
-            class="max-h-50vh overflow-auto"
-            @change="onTrackChange"
-          />
+          <div class="flex gap-4">
+            <ElSegmented
+              v-model="selectedTrack"
+              direction="vertical"
+              :options="trackOptions"
+              class="max-h-50vh overflow-auto"
+              @change="onTrackChange"
+            />
+            <SubtitleStyle :locale="locale" class="h-fit" />
+          </div>
         </ElPopover>
 
         <ElPopover
@@ -621,11 +625,12 @@ defineExpose({
 }
 
 ::cue {
-  background-color: rgba(0, 0, 0, 0.2);
-  color: #ffffff;
-  font-size: 1.6rem;
+  background-color: var(--subtitle-bg, rgba(0, 0, 0, 0.2)) !important;
+  color: var(--subtitle-color, #ffffff);
+  font-size: var(--subtitle-size, 24px);
   line-height: 1.5;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: var(--subtitle-shadow, black 0.1em 0.1em 0.2em);
+  white-space: pre-wrap;
 }
 
 ::cue(b) {

@@ -43,6 +43,10 @@ export interface I18nMessages {
   border: string
   shadow: string
   none: string
+  primary: string
+  white: string
+  fontColor: string
+  bgOpacity: string
 }
 
 export type I18nLocale = 'en' | 'zh'
@@ -89,6 +93,10 @@ const en: I18nMessages = {
   border: 'Border',
   shadow: 'Shadow',
   none: 'None',
+  primary: 'Primary',
+  white: 'White',
+  fontColor: 'Font Color',
+  bgOpacity: 'Bg Opacity',
 }
 
 const zh: I18nMessages = {
@@ -133,6 +141,10 @@ const zh: I18nMessages = {
   border: '描边',
   shadow: '阴影',
   none: '无',
+  primary: '主题色',
+  white: '白色',
+  fontColor: '字体颜色',
+  bgOpacity: '背景透明度',
 }
 
 const messages: Record<I18nLocale, I18nMessages> = {

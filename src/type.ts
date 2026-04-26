@@ -16,4 +16,9 @@ export interface Preference {
   commentOffset: number
   commentLimit: number
   showComment: boolean
+  subtitleSize: number
+  subtitleColor: 'primary' | 'white'
+  subtitleOpacity: number
+  subtitleStyle: 'border' | 'shadow' | 'none'
+  subtitleBgOpacity: number
 }

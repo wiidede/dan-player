@@ -434,6 +434,7 @@ defineExpose({
             v-model="currentSubtitleIndex"
             direction="vertical"
             :options="subtitleOptions"
+            class="max-h-50vh overflow-auto"
           />
         </ElPopover>
 
@@ -454,6 +455,7 @@ defineExpose({
             v-model="selectedTrack"
             direction="vertical"
             :options="trackOptions"
+            class="max-h-50vh overflow-auto"
             @change="onTrackChange"
           />
         </ElPopover>

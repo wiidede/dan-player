@@ -19,6 +19,8 @@ import 'element-plus/theme-chalk/el-dialog.css'
 import 'element-plus/theme-chalk/el-popover.css'
 import 'element-plus/theme-chalk/el-segmented.css'
 import 'element-plus/theme-chalk/el-slider.css'
+import 'element-plus/theme-chalk/el-tooltip.css'
+import 'element-plus/theme-chalk/el-popper.css'
 
 const {
   src,

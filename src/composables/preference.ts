@@ -1,5 +1,6 @@
 import type { Preference } from '../type'
-import { toRefs, useLocalStorage } from '@vueuse/core'
+import { useLocalStorage } from '@vueuse/core'
+import { toRefs } from 'vue'
 
 export function usePreference() {
   const defaultValue: Preference = {
@@ -28,5 +29,5 @@ export function usePreference() {
     }
   })
 
-  return toRefs(preference)
+  return toRefs(preference.value)
 }

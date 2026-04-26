@@ -7,6 +7,8 @@ import { useI18n } from '../composables/useI18n'
 import { commentShadowMap } from '../constants/comment'
 import 'element-plus/theme-chalk/el-segmented.css'
 import 'element-plus/theme-chalk/el-slider.css'
+import 'element-plus/theme-chalk/el-tooltip.css'
+import 'element-plus/theme-chalk/el-popper.css'
 
 const {
   locale,

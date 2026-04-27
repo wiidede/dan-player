@@ -1,5 +1,5 @@
-import type { SubtitleFile } from 'src/workers/mkvExtract.worker'
 import type { MaybeRefOrGetter } from 'vue'
+import type { SubtitleFile } from '../workers/mkvExtract.worker'
 import ASS from 'assjs'
 import { onUnmounted, toValue, watch } from 'vue'
 

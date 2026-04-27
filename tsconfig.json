@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es2018",
     "lib": ["esnext", "dom"],
-    "baseUrl": ".",
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,

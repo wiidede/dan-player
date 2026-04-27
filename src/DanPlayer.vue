@@ -142,6 +142,8 @@ const loop = ref(false)
 
 const togglePlay = useToggle(playing)
 const { toggle: toggleFullscreen, isFullscreen } = useFullscreen(videoContainerRef)
+const isWebFullscreen = ref(false)
+const toggleWebFullscreen = useToggle(isWebFullscreen)
 const { idle: systemIdle } = useIdle(3_000)
 const idle = computed(() => systemIdle.value && playing.value)
 
@@ -199,7 +201,7 @@ function showToast(message: string) {
   }, 1500)
 }
 
-const { space, arrowUp, arrowDown, arrowLeft, arrowRight, m, f, p, bracketLeft, bracketRight } = useMagicKeys()
+const { space, arrowUp, arrowDown, arrowLeft, arrowRight, m, f, w, p, bracketLeft, bracketRight, escape } = useMagicKeys()
 
 const activeElement = useActiveElement()
 const notUsingInput = computed(() =>
@@ -241,9 +243,35 @@ whenever(logicAnd(m, notUsingInput), () => {
   showToast(muted.value ? t.value.mute : t.value.unmute)
 })
 
-whenever(logicAnd(f, notUsingInput), () => {
+function handleWebFullscreen() {
+  if (isFullscreen.value) {
+    toggleFullscreen()
+  }
+  toggleWebFullscreen()
+  showToast(isWebFullscreen.value ? t.value.exitWebFullscreen : t.value.webFullscreen)
+}
+
+function handleFullscreen() {
+  if (isWebFullscreen.value) {
+    toggleWebFullscreen()
+  }
   toggleFullscreen()
   showToast(isFullscreen.value ? t.value.exitFullscreen : t.value.fullscreen)
+}
+
+whenever(logicAnd(w, notUsingInput), () => {
+  handleWebFullscreen()
+})
+
+whenever(logicAnd(f, notUsingInput), () => {
+  handleFullscreen()
+})
+
+whenever(logicAnd(escape, notUsingInput), () => {
+  if (isWebFullscreen.value) {
+    toggleWebFullscreen()
+    showToast(t.value.exitWebFullscreen)
+  }
 })
 
 whenever(logicAnd(p, notUsingInput), () => {
@@ -273,6 +301,7 @@ const keyboardShortcuts = computed(() => [
   { key: '↑', description: t.value.volumeUp },
   { key: '↓', description: t.value.volumeDown },
   { key: 'M', description: t.value.muteUnmute },
+  { key: 'W', description: t.value.webFullscreen },
   { key: 'F', description: t.value.fullscreen },
   { key: 'P', description: t.value.pip },
   { key: '[', description: t.value.speedDown },
@@ -296,11 +325,11 @@ onMounted(() => {
   popperContainer.style.setProperty('--el-bg-color', '#ffffff')
 
   // fix tooltip not display while fullscreen
-  watch(isFullscreen, (val) => {
+  watch([isFullscreen, isWebFullscreen], ([f, wf]) => {
     const popperContainer = document.querySelector(usePopperContainerId().selector.value)
     if (!popperContainer)
       return
-    if (val)
+    if (f || wf)
       videoContainerRef.value?.append(popperContainer)
 
     else
@@ -331,8 +360,8 @@ defineExpose({
 <template>
   <div
     ref="videoContainerRef"
-    class="dan-player ccl-player container relative flex-center overflow-hidden bg-black"
-    :class="{ 'cursor-none': idle }"
+    class="dan-player ccl-player relative flex-center overflow-hidden bg-black"
+    :class="{ 'cursor-none': idle, 'web-fullscreen': isWebFullscreen }"
   >
     <video
       ref="videoRef"
@@ -340,7 +369,7 @@ defineExpose({
       playsinline
       :src="srcUrl"
       :loop="loop"
-      class="w-full outline-none"
+      class="max-h-full w-full outline-none"
       v-bind="reactiveOmit($attrs, 'class', 'style')"
       @click="togglePlay()"
     />
@@ -493,8 +522,12 @@ defineExpose({
           <div :class="isPictureInPicture ? 'i-dan-back-to-screen' : 'i-carbon-shrink-screen'" />
         </button>
 
-        <button class="dan-btn" @mousedown.prevent @click="toggleFullscreen()">
-          <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-fit-to-screen'" />
+        <button class="dan-btn" @mousedown.prevent @click="handleWebFullscreen()">
+          <div :class="isWebFullscreen ? 'i-dan-exit-fit-to-screen' : 'i-carbon-fit-to-screen'" />
+        </button>
+
+        <button class="dan-btn" @mousedown.prevent @click="handleFullscreen()">
+          <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-center-to-fit'" />
         </button>
       </div>
     </div>
@@ -692,5 +725,13 @@ defineExpose({
   100% {
     width: 4rem;
   }
+}
+
+.dan-player.web-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
 }
 </style>

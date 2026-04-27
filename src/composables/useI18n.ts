@@ -8,6 +8,8 @@ export interface I18nMessages {
   unmute: string
   fullscreen: string
   exitFullscreen: string
+  webFullscreen: string
+  exitWebFullscreen: string
   pip: string
   exitPip: string
   speed: string
@@ -58,6 +60,8 @@ const en: I18nMessages = {
   unmute: 'Unmute',
   fullscreen: 'Fullscreen',
   exitFullscreen: 'Exit Fullscreen',
+  webFullscreen: 'Web Fullscreen',
+  exitWebFullscreen: 'Exit Web Fullscreen',
   pip: 'Picture in Picture',
   exitPip: 'Exit Picture in Picture',
   speed: 'Speed',
@@ -106,6 +110,8 @@ const zh: I18nMessages = {
   unmute: '取消静音',
   fullscreen: '全屏',
   exitFullscreen: '退出全屏',
+  webFullscreen: '网页全屏',
+  exitWebFullscreen: '退出网页全屏',
   pip: '画中画',
   exitPip: '退出画中画',
   speed: '速度',

@@ -54,7 +54,7 @@ export function useCCL(
           }
         }
         else {
-          setTimeout(() => stopComment(), 0)
+          setTimeout(stopComment, 0)
           onCommentLoad()
         }
       }

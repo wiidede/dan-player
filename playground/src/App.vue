@@ -64,7 +64,7 @@ setTimeout(() => {
     </div>
   </main>
   <footer class="m-auto mt4 prose">
-    <button class="btn mb-2" title="toggle dark mode" @click="toggleDark()">
+    <button class="mb-2 btn" title="toggle dark mode" @click="toggleDark()">
       <div i="carbon-sun dark:carbon-moon" />
     </button>
     <div class="flex gap4">

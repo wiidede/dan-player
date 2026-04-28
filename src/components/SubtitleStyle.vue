@@ -50,7 +50,7 @@ watchEffect(() => {
 <template>
   <div class="config-container">
     <div>{{ t.fontSize }}</div>
-    <ElSlider v-model="subtitleSize" :min="12" :max="64" />
+    <ElSlider v-model="subtitleSize" :min="12" :max="128" />
     <div>{{ t.fontColor }}</div>
     <ElSegmented v-model="subtitleColor" :options="subtitleColorOptions" size="small" />
     <div>{{ t.notTransparent }}</div>

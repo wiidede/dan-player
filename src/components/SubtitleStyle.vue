@@ -41,12 +41,7 @@ watchEffect(() => {
   const body = document.body
   body.style.setProperty('--subtitle-size', `${subtitleSize.value}px`)
   const colorValue = subtitleColor.value === 'primary' ? 'var(--el-color-primary, #409eff)' : '#ffffff'
-  const r = subtitleColor.value === 'primary' ? 64 : 255
-  const g = subtitleColor.value === 'primary' ? 158 : 255
-  const b = subtitleColor.value === 'primary' ? 255 : 255
-  const a = subtitleOpacity.value / 100
-  body.style.setProperty('--subtitle-color', `rgba(${r}, ${g}, ${b}, ${a})`)
-  body.style.setProperty('--subtitle-color-base', colorValue)
+  body.style.setProperty('--subtitle-color', `color-mix(in srgb, ${colorValue} ${subtitleOpacity.value}%, transparent)`)
   body.style.setProperty('--subtitle-shadow', commentShadowMap[subtitleStyle.value])
   body.style.setProperty('--subtitle-bg', `rgba(0, 0, 0, ${subtitleBgOpacity.value / 100})`)
 })

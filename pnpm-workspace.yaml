@@ -5,3 +5,7 @@ trustPolicy: no-downgrade
 packages:
   - playground
   - examples/*
+
+allowBuilds:
+  esbuild: true
+  simple-git-hooks: true

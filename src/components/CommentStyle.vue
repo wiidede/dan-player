@@ -29,6 +29,7 @@ const {
   commentSpeed,
   commentOffset,
   commentLimit,
+  commentMode,
 } = usePreference()
 
 const heightMap = {
@@ -50,6 +51,12 @@ const commentShadowOptions = computed(() => Object.keys(commentShadowMap).map(ke
   value: key,
 })))
 
+const commentModeOptions = computed(() => [
+  { label: t.value.none, value: 'none' },
+  { label: t.value.strict, value: 'strict' },
+  { label: t.value.adaptive, value: 'adaptive' },
+])
+
 watchEffect(() => {
   const { commentOpacity, commentSize, commentWeight, commentShadow } = usePreference()
   if (commentOpacity.value) {
@@ -67,6 +74,8 @@ watchEffect(() => {
     <ElSlider v-model="commentOpacity" :min="10" :max="100" :format-tooltip="val => `${val}%`" />
     <div>{{ t.displayArea }}</div>
     <ElSlider v-model="commentHeight" :min="25" :max="100" :step="25" :format-tooltip="heightFormatter" :marks="heightMap" mb-1 />
+    <div>{{ t.barrageMode }}</div>
+    <ElSegmented v-model="commentMode" :options="commentModeOptions" size="small" />
     <div>{{ t.barrageSpeed }}</div>
     <ElSlider v-model="commentSpeed" :min="0.3" :max="2" :step="0.1" />
     <div>{{ t.fontSize }}</div>

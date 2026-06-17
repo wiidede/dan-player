@@ -69,9 +69,9 @@
   "dependencies": {
     "@vueuse/core": "^14.3.0",
     "@vueuse/math": "^14.3.0",
-    "@wiidede/comment-core-library": "^0.2.0",
     "@wiidede/ebml": "^0.1.1",
     "assjs": "^0.1.8",
+    "danmu": "^0.20.0",
     "element-plus": "^2.14.2",
     "fly-barrage": "^2.5.0"
   },

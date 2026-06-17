@@ -15,6 +15,7 @@ export interface Preference {
   commentSpeed: number
   commentOffset: number
   commentLimit: number
+  commentMode: 'none' | 'strict' | 'adaptive'
   showComment: boolean
   subtitleSize: number
   subtitleColor: 'primary' | 'white'

@@ -11,8 +11,8 @@ import CommentStyle from './components/CommentStyle.vue'
 import Scrubber from './components/Scrubber.vue'
 import SubtitleStyle from './components/SubtitleStyle.vue'
 import { useAss } from './composables/ass'
-import { useCCL } from './composables/ccl'
 import { useMkvExtractWorker } from './composables/mkvExtract'
+import { useDanmu } from './composables/useDanmu'
 import { useI18n } from './composables/useI18n'
 import 'element-plus/theme-chalk/base.css'
 import 'element-plus/theme-chalk/el-dialog.css'
@@ -128,7 +128,7 @@ const subtitleOptions = computed(() => [
 ])
 
 const onCommentLoad = () => emit('onCommentLoad')
-const { showComment, toggleShowComment } = useCCL(
+const { showComment, toggleShowComment } = useDanmu(
   () => comments,
   () => autoplayOnCommentLoad,
   onCommentLoad,
@@ -360,7 +360,7 @@ defineExpose({
 <template>
   <div
     ref="videoContainerRef"
-    class="dan-player ccl-player relative flex-center overflow-hidden bg-black"
+    class="dan-player relative flex-center overflow-hidden bg-black"
     :class="{ 'cursor-none': idle, 'web-fullscreen': isWebFullscreen }"
   >
     <video
@@ -373,7 +373,7 @@ defineExpose({
       v-bind="reactiveOmit($attrs, 'class', 'style')"
       @click="togglePlay()"
     />
-    <div ref="commentRef" class="comment-container of-hidden" />
+    <div ref="commentRef" class="comment-container pointer-events-none absolute inset-0 of-hidden" />
     <div
       ref="assRef"
       class="ass-container pointer-events-none absolute"
@@ -678,6 +678,21 @@ defineExpose({
 
 ::cue(u) {
   text-decoration: underline;
+}
+
+.danmaku-comment {
+  position: absolute;
+  white-space: pre;
+  word-break: keep-all;
+  user-select: none;
+  pointer-events: none;
+  line-height: 100%;
+  color: #fff;
+  opacity: var(--comment-opacity, 1);
+  font-size: var(--comment-size, 25px);
+  font-weight: var(--comment-weight, 400);
+  text-shadow: var(--comment-shadow, -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black);
+  will-change: transform;
 }
 </style>
 

@@ -42,9 +42,12 @@ export interface I18nMessages {
   sameScreenNumber: string
   barrageShadow: string
   barrageOffset: string
+  barrageMode: string
   border: string
   shadow: string
   none: string
+  strict: string
+  adaptive: string
   primary: string
   white: string
   fontColor: string
@@ -94,9 +97,12 @@ const en: I18nMessages = {
   sameScreenNumber: 'Comments Number',
   barrageShadow: 'Comment Shadow',
   barrageOffset: 'Comment Offset',
+  barrageMode: 'Overlap Prevention',
   border: 'Border',
   shadow: 'Shadow',
   none: 'None',
+  strict: 'Strict',
+  adaptive: 'Adaptive',
   primary: 'Primary',
   white: 'White',
   fontColor: 'Font Color',
@@ -144,9 +150,12 @@ const zh: I18nMessages = {
   sameScreenNumber: '同屏数量',
   barrageShadow: '弹幕阴影',
   barrageOffset: '弹幕偏移',
+  barrageMode: '防止重叠',
   border: '描边',
   shadow: '阴影',
   none: '无',
+  strict: '严格',
+  adaptive: '自适应',
   primary: '主题色',
   white: '白色',
   fontColor: '字体颜色',

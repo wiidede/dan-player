@@ -16,14 +16,14 @@ Dan Player is a bullet screen player component developed based on Vue, supportin
 ## Features
 
 - 基础功能：播放、控制
-- 弹幕功能（基于Comment Core Library）
+- 弹幕功能（基于 [danmu](https://github.com/imtaotao/danmu)）
 - 键盘快捷键
 - 国际化，支持中文、英文已经自定义
 - 支持 MKV 格式，读取srt、ass字幕 by [@wiidede/ebml](https://github.com/wiidede/ebml)
 - ass字幕显示 by [ASS.js](https://github.com/weizhenye/ASS)
 
 - Basic functions: play, control
-- Danmaku feature (based on Comment Core Library)
+- Danmaku feature (based on [danmu](https://github.com/imtaotao/danmu))
 - Keyboard shortcuts
 - Internationalization, supports Chinese, English and customization
 - Supports MKV format, reads srt, ass subtitles by [@wiidede/ebml](https://github.com/wiidede/ebml)

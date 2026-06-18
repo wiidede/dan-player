@@ -15,7 +15,7 @@ function createDefaultPreference(): Preference {
     commentSpeed: 0.5,
     commentOffset: 0,
     commentLimit: 0,
-    commentMode: 'adaptive',
+    commentMode: 'strict',
     showComment: true,
     subtitleSize: 24,
     subtitleColor: 'white',

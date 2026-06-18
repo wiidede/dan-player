@@ -7,7 +7,6 @@ import { toValue, watch } from 'vue'
 import { usePreference } from './preference'
 
 const SEEK_THRESHOLD_MS = 1000
-const LOOKBACK_MS = 20000
 const DEFAULT_DURATION_MS = 4000
 
 function toHexColor(color: number) {
@@ -157,9 +156,6 @@ export function useDanmu(
     function resync(timeMs: number) {
       manager.clear()
       resetCounters()
-      pushCommentsInRange(Math.max(0, timeMs - LOOKBACK_MS), timeMs)
-      if (showComment.value && playing.value)
-        manager.render()
       lastTimeMs = timeMs
     }
 

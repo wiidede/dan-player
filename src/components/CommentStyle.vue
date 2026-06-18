@@ -52,7 +52,6 @@ const commentShadowOptions = computed(() => Object.keys(commentShadowMap).map(ke
 })))
 
 const commentModeOptions = computed(() => [
-  { label: t.value.none, value: 'none' },
   { label: t.value.strict, value: 'strict' },
   { label: t.value.adaptive, value: 'adaptive' },
 ])

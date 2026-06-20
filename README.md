@@ -17,6 +17,7 @@ Dan Player is a bullet screen player component developed based on Vue, supportin
 
 - 基础功能：播放、控制
 - 弹幕功能（基于 [danmu](https://github.com/imtaotao/danmu)）
+- 弹幕发送组件
 - 键盘快捷键
 - 国际化，支持中文、英文已经自定义
 - 支持 MKV 格式，读取srt、ass字幕 by [@wiidede/ebml](https://github.com/wiidede/ebml)
@@ -24,6 +25,7 @@ Dan Player is a bullet screen player component developed based on Vue, supportin
 
 - Basic functions: play, control
 - Danmaku feature (based on [danmu](https://github.com/imtaotao/danmu))
+- Danmaku send component
 - Keyboard shortcuts
 - Internationalization, supports Chinese, English and customization
 - Supports MKV format, reads srt, ass subtitles by [@wiidede/ebml](https://github.com/wiidede/ebml)
@@ -106,25 +108,33 @@ import { DanPlayerResolver } from '@wiidede/dan-player/resolver'
 | additionalFunctions   | `('loop' \| 'picture-in-picture')[]` | An array specifying additional functions to enable for the player, such as loop playback and Picture-in-Picture mode.          | `[]`        |
 | locale                | `I18nLocale \| I18nMessages`         | The language setting for internationalization. It determines which language's text content will be displayed in the component. | `'en'`      |
 | src                   | `string \| Blob`                     | The source URL or Blob object of the video to be played.                                                                       | `undefined` |
+| showCommentSender     | `boolean`                            | Whether to display the comment sender input at the bottom control bar.                                                         | `false`     |
 
 ## Events
 
 | Name          | Description                                                                                                                                                                           |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | onCommentLoad | This event is emitted when the comment data has been successfully loaded. Parent components can listen to this event to perform additional operations upon comment data availability. |
+| sendComment   | This event is emitted when the user clicks the send button in the comment sender. The sent text is passed as the payload.                                                             |
+
+## Slots
+
+| Name           | Scope                                                                  | Description                                                                      |
+| -------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| comment-sender | `{ send: (text: string) => void, locale: I18nLocale \| I18nMessages }` | Customize the comment sender UI. Use `send` to trigger the send action manually. |
 
 ## Exposed Properties and Methods
 
 The component exposes several properties and methods via `defineExpose` for external components to interact with and control the video player more precisely:
 
-| Name                        | Type       | Description                                                                                                                     |
-| --------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| playing                     | `boolean`  | Indicates whether the video is currently playing or paused.                                                                     |
-| currentTime                 | `number`   | Represents the current playback time of the video in seconds.                                                                   |
-| duration                    | `number`   | Holds the total duration of the video in seconds.                                                                               |
-| (other relevant properties) | (types)    | (describe the types and purposes of other exposed properties like volume, muted, isPictureInPicture, etc., if applicable)       |
-| togglePlay                  | `Function` | A method that can be called to toggle the play/pause state of the video.                                                        |
-| (other relevant methods)    | (Function) | (describe the functionality of other exposed methods such as togglePictureInPicture, toggleFullscreen, etc., if there are more) |
+| Name                        | Type                     | Description                                                                                                                 |
+| --------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| playing                     | `boolean`                | Indicates whether the video is currently playing or paused.                                                                 |
+| currentTime                 | `number`                 | Represents the current playback time of the video in seconds.                                                               |
+| duration                    | `number`                 | Holds the total duration of the video in seconds.                                                                           |
+| (other relevant properties) | (types)                  | (describe the types and purposes of other exposed properties like volume, muted, isPictureInPicture, etc., if applicable)   |
+| togglePlay                  | `Function`               | A method that can be called to toggle the play/pause state of the video.                                                    |
+| addSelfComment              | `(text: string) => void` | Manually add a self-sent comment to the danmaku layer with a blue highlight border. Usually called after a successful send. |
 
 ## Styling Customization
 

@@ -15,7 +15,7 @@ export default defineConfig({
   ],
   theme: {
     colors: {
-      primary: 'var(--c-primary)',
+      primary: 'var(--el-color-primary)',
     },
   },
   safelist: [],

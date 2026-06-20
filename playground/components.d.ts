@@ -13,6 +13,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     CommentStyle: typeof import('./../src/components/CommentStyle.vue')['default']
     DanPlayer: typeof import('@wiidede/dan-player')['DanPlayer']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
+    PlayerInfoDialog: typeof import('./../src/components/PlayerInfoDialog.vue')['default']
     Scrubber: typeof import('./../src/components/Scrubber.vue')['default']
     SubtitleStyle: typeof import('./../src/components/SubtitleStyle.vue')['default']
   }

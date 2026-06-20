@@ -2,18 +2,20 @@
 import type { UseMediaTextTrackSource } from '@vueuse/core'
 import type { I18nLocale, I18nMessages } from './composables/useI18n'
 import type { ICommentCCL } from './type'
-import { reactiveOmit, useActiveElement, useElementSize, useFullscreen, useIdle, useMagicKeys, useMediaControls, useMouseInElement, useToggle, whenever } from '@vueuse/core'
-import { logicAnd } from '@vueuse/math'
-import { ElDialog, ElPopover, ElSegmented, ElSlider, usePopperContainerId } from 'element-plus'
+import { reactiveOmit, useElementSize, useFullscreen, useIdle, useMediaControls, useMouseInElement, useToggle } from '@vueuse/core'
+import { ElPopover, ElSegmented, ElSlider, usePopperContainerId } from 'element-plus'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { version } from '../package.json'
 import CommentStyle from './components/CommentStyle.vue'
+import PlayerInfoDialog from './components/PlayerInfoDialog.vue'
 import Scrubber from './components/Scrubber.vue'
 import SubtitleStyle from './components/SubtitleStyle.vue'
 import { useAss } from './composables/ass'
 import { useMkvExtractWorker } from './composables/mkvExtract'
 import { useDanmu } from './composables/useDanmu'
 import { useI18n } from './composables/useI18n'
+import { usePlayerKeyboard } from './composables/usePlayerKeyboard'
+import { speedOptions } from './constants/player'
+import './styles/player.css'
 import 'element-plus/theme-chalk/base.css'
 import 'element-plus/theme-chalk/el-dialog.css'
 import 'element-plus/theme-chalk/el-popover.css'
@@ -152,16 +154,6 @@ const { isOutside: hideVolumeSlider } = useMouseInElement(volumeAdjustRef)
 
 const endBuffer = computed(() => buffered.value.length > 0 ? buffered.value[buffered.value.length - 1][1] : 0)
 
-const speedOptions = [
-  { label: '0.5x', value: 0.5 },
-  { label: '0.75x', value: 0.75 },
-  { label: '1.0x', value: 1 },
-  { label: '1.25x', value: 1.25 },
-  { label: '1.5x', value: 1.5 },
-  { label: '2.0x', value: 2 },
-  { label: '3.0x', value: 3 },
-]
-
 const trackOptions = computed(() => [
   { label: 'Off', value: -1 },
   ...tracks.value.map(track => ({
@@ -201,112 +193,42 @@ function showToast(message: string) {
   }, 1500)
 }
 
-const { space, arrowUp, arrowDown, arrowLeft, arrowRight, m, f, w, p, bracketLeft, bracketRight, escape } = useMagicKeys()
-
-const activeElement = useActiveElement()
-const notUsingInput = computed(() =>
-  activeElement.value?.tagName !== 'INPUT'
-  && activeElement.value?.tagName !== 'TEXTAREA'
-  && !(activeElement.value instanceof HTMLElement && activeElement.value.isContentEditable),
-)
-
 const { t } = useI18n(() => locale ?? 'en')
 
-// Handle keyboard shortcuts
-whenever(logicAnd(space, notUsingInput), () => {
-  togglePlay()
-  showToast(`${playing.value ? t.value.play : t.value.pause}`)
-})
-
-whenever(logicAnd(arrowRight, notUsingInput), () => {
-  currentTime.value += 5
-  showToast(t.value.forward)
-})
-
-whenever(logicAnd(arrowLeft, notUsingInput), () => {
-  currentTime.value -= 5
-  showToast(t.value.backward)
-})
-
-whenever(logicAnd(arrowUp, notUsingInput), () => {
-  volume.value = Math.min(1, volume.value + 0.1)
-  showToast(`${t.value.volume}: ${Math.round(volume.value * 100)}%`)
-})
-
-whenever(logicAnd(arrowDown, notUsingInput), () => {
-  volume.value = Math.max(0, volume.value - 0.1)
-  showToast(`${t.value.volume}: ${Math.round(volume.value * 100)}%`)
-})
-
-whenever(logicAnd(m, notUsingInput), () => {
-  muted.value = !muted.value
-  showToast(muted.value ? t.value.mute : t.value.unmute)
-})
-
-function handleWebFullscreen() {
-  if (isFullscreen.value) {
+function handleFullscreen(mode: 'web' | 'native') {
+  if (mode === 'web') {
+    if (isFullscreen.value)
+      toggleFullscreen()
+    toggleWebFullscreen()
+    showToast(isWebFullscreen.value ? t.value.exitWebFullscreen : t.value.webFullscreen)
+  }
+  else {
+    if (isWebFullscreen.value)
+      toggleWebFullscreen()
     toggleFullscreen()
+    showToast(isFullscreen.value ? t.value.exitFullscreen : t.value.fullscreen)
   }
-  toggleWebFullscreen()
-  showToast(isWebFullscreen.value ? t.value.exitWebFullscreen : t.value.webFullscreen)
 }
 
-function handleFullscreen() {
-  if (isWebFullscreen.value) {
-    toggleWebFullscreen()
-  }
-  toggleFullscreen()
-  showToast(isFullscreen.value ? t.value.exitFullscreen : t.value.fullscreen)
-}
-
-whenever(logicAnd(w, notUsingInput), () => {
-  handleWebFullscreen()
-})
-
-whenever(logicAnd(f, notUsingInput), () => {
-  handleFullscreen()
-})
-
-whenever(logicAnd(escape, notUsingInput), () => {
-  if (isWebFullscreen.value) {
-    toggleWebFullscreen()
-    showToast(t.value.exitWebFullscreen)
-  }
-})
-
-whenever(logicAnd(p, notUsingInput), () => {
-  if (supportsPictureInPicture) {
-    togglePictureInPicture()
-    showToast(isPictureInPicture.value ? t.value.exitPip : t.value.pip)
-  }
-})
-
-whenever(logicAnd(bracketLeft, notUsingInput), () => {
-  rate.value = Math.max(0.5, rate.value - 0.25)
-  showToast(`${t.value.speed}: ${rate.value}x`)
-})
-
-whenever(logicAnd(bracketRight, notUsingInput), () => {
-  rate.value = Math.min(3, rate.value + 0.25)
-  showToast(`${t.value.speed}: ${rate.value}x`)
+const { keyboardShortcuts } = usePlayerKeyboard({
+  playing,
+  currentTime,
+  volume,
+  muted,
+  rate,
+  isPictureInPicture,
+  supportsPictureInPicture,
+  isWebFullscreen,
+  togglePlay,
+  togglePictureInPicture,
+  toggleWebFullscreen,
+  handleFullscreen,
+  showToast,
+  t,
 })
 
 const showDialog = ref(false)
 const toggleDialog = useToggle(showDialog)
-
-const keyboardShortcuts = computed(() => [
-  { key: 'Space', description: t.value.playPause },
-  { key: '←', description: t.value.backward },
-  { key: '→', description: t.value.forward },
-  { key: '↑', description: t.value.volumeUp },
-  { key: '↓', description: t.value.volumeDown },
-  { key: 'M', description: t.value.muteUnmute },
-  { key: 'W', description: t.value.webFullscreen },
-  { key: 'F', description: t.value.fullscreen },
-  { key: 'P', description: t.value.pip },
-  { key: '[', description: t.value.speedDown },
-  { key: ']', description: t.value.speedUp },
-])
 
 const videoInfo = computed(() => ({
   [t.value.currentTime]: formatDuration(currentTime.value),
@@ -522,11 +444,11 @@ defineExpose({
           <div :class="isPictureInPicture ? 'i-dan-back-to-screen' : 'i-carbon-shrink-screen'" />
         </button>
 
-        <button class="dan-btn" @mousedown.prevent @click="handleWebFullscreen()">
+        <button class="dan-btn" @mousedown.prevent @click="handleFullscreen('web')">
           <div :class="isWebFullscreen ? 'i-dan-exit-fit-to-screen' : 'i-carbon-fit-to-screen'" />
         </button>
 
-        <button class="dan-btn" @mousedown.prevent @click="handleFullscreen()">
+        <button class="dan-btn" @mousedown.prevent @click="handleFullscreen('native')">
           <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-center-to-fit'" />
         </button>
       </div>
@@ -542,211 +464,11 @@ defineExpose({
       </div>
     </Transition>
 
-    <ElDialog
+    <PlayerInfoDialog
       v-model="showDialog"
-      title="Dan Player"
-      class="dan-player-dialog"
-      width="fit-content"
-    >
-      <div class="flex gap-4 text-zinc-300">
-        <div class="space-y-2">
-          <!-- Video Info Section -->
-          <div class="space-y-2">
-            <span class="text-sm text-zinc-200 font-medium">
-              {{ t.videoInfo }}
-            </span>
-            <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-              <template v-for="(value, key) in videoInfo" :key="key">
-                <span class="dan-label">{{ key }}</span>
-                <span class="dan-value">{{ value }}</span>
-              </template>
-            </div>
-          </div>
-          <!-- Video Info Section -->
-          <div class="space-y-2">
-            <span class="text-sm text-zinc-200 font-medium">
-              {{ t.playerInfo }}
-            </span>
-            <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-              <span class="dan-label">{{ t.version }}</span>
-              <span class="dan-value">{{ version }}</span>
-              <span class="dan-label">{{ t.author }}</span>
-              <span class="dan-value"><a href="https://github.com/wiidede/" target="_blank">wiidede</a></span>
-              <span class="dan-label">GitHub</span>
-              <span class="dan-value"><a href="https://github.com/wiidede/dan-player" target="_blank"><div class="i-carbon-logo-github" /></a></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="my-2 w-[1px] bg-zinc-700" />
-
-        <!-- Keyboard Shortcuts Section -->
-        <div class="space-y-2">
-          <span class="text-sm text-zinc-200 font-medium">
-            {{ t.keyboardShortcuts }}
-          </span>
-          <div class="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
-            <template v-for="shortcut in keyboardShortcuts" :key="shortcut.key">
-              <span class="dan-label">{{ shortcut.description }}</span>
-              <span class="dan-value w-fit">{{ shortcut.key }}</span>
-            </template>
-          </div>
-        </div>
-      </div>
-    </ElDialog>
+      :locale="locale"
+      :video-info="videoInfo"
+      :keyboard-shortcuts="keyboardShortcuts"
+    />
   </div>
 </template>
-
-<style>
-.el-popper.dan-settings-popper,
-.dan-player {
-  --el-bg-color: #141414;
-  --el-bg-color-overlay: #000000e0;
-  --el-border-color-light: #414243;
-  --el-fill-color-light: #262727;
-  --el-fill-color-dark: #39393a;
-  --el-fill-color-darker: #424243;
-  --el-text-color-primary: #e5eaf3;
-  --el-text-color-regular: #cfd3dc;
-  --el-text-color-secondary: #a3a6ad;
-  --el-border: var(--el-border-width) var(--el-border-style) var(--el-border-color);
-  --el-border-color: #4c4d4f;
-}
-
-.el-popper.dan-settings-popper {
-  font-size: 12px;
-  border: none;
-  box-shadow: var(--el-box-shadow);
-  min-width: 0;
-}
-
-.el-popper.dan-settings-popper.bg-op {
-  background-color: transparent;
-  padding: 0;
-}
-
-.dan-label {
-  --at-apply: text-sm text-zinc-400;
-}
-
-.dan-value {
-  --at-apply: rounded bg-zinc-800/50 px-2 py-0.5 text-sm text-zinc-200 font-mono;
-}
-
-.dan-player .el-slider,
-.dan-settings-popper .el-slider {
-  --el-slider-height: 4px;
-  --el-slider-button-size: 12px;
-  height: 16px;
-}
-
-.dan-player .el-slider__button-wrapper,
-.dan-settings-popper .el-slider__button-wrapper {
-  top: 2px;
-  transform: translate(-50%, -50%);
-}
-
-.dan-player .el-slider__button,
-.dan-settings-popper .el-slider__button {
-  background-color: var(--el-slider-main-bg-color);
-}
-
-.dan-player .el-slider__marks-text,
-.dan-settings-popper .el-slider__marks-text {
-  word-break: keep-all;
-  margin-top: 8px;
-  font-size: 12px;
-}
-
-::cue {
-  background-color: var(--subtitle-bg, rgba(0, 0, 0, 0.2)) !important;
-  color: var(--subtitle-color, #ffffff);
-  font-size: var(--subtitle-size, 24px);
-  line-height: 1.5;
-  text-shadow: var(--subtitle-shadow, black 0.1em 0.1em 0.2em);
-  white-space: pre-wrap;
-}
-
-::cue(b) {
-  font-weight: bold;
-}
-
-::cue(i) {
-  font-style: italic;
-}
-
-::cue(u) {
-  text-decoration: underline;
-}
-
-.danmaku-comment {
-  position: absolute;
-  white-space: pre;
-  word-break: keep-all;
-  user-select: none;
-  pointer-events: none;
-  line-height: 100%;
-  color: #fff;
-  opacity: var(--comment-opacity, 1);
-  font-size: var(--comment-size, 25px);
-  font-weight: var(--comment-weight, 400);
-  text-shadow: var(--comment-shadow, -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black);
-  will-change: transform;
-}
-</style>
-
-<style scoped>
-.dan-btn {
-  --at-apply: rd p-1 c-inherit cursor-pointer text-4 hover-bg-zinc-500/60 active-bg-zinc-600/60 bg-transparent bg-none
-    b-none;
-}
-
-.dan-player:focus {
-  outline: none;
-}
-
-.dan-player-gradient-bottom {
-  background-position: bottom;
-  position: absolute;
-  background: rgb(0, 0, 0);
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.33) 66%, rgba(0, 0, 0, 0) 100%);
-  pointer-events: none;
-}
-
-.toast-fade-enter-active {
-  transition: all 0.2s ease-out;
-}
-.toast-fade-leave-active {
-  transition: all 0.15s ease-in;
-}
-.toast-fade-enter-from,
-.toast-fade-leave-to {
-  transform: translateY(-4px);
-  opacity: 0;
-}
-
-.volume-expand-right-enter-active {
-  animation: volume-expand-right 0.4s ease-out;
-}
-.volume-expand-right-leave-active {
-  animation: volume-expand-right 0.4s ease-in reverse;
-}
-
-@keyframes volume-expand-right {
-  0% {
-    width: 0;
-  }
-  100% {
-    width: 4rem;
-  }
-}
-
-.dan-player.web-fullscreen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  width: 100vw;
-  height: 100vh;
-}
-</style>

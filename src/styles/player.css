@@ -1,4 +1,4 @@
-.el-popper.dan-settings-popper,
+.el-popper.el-popover.dan-settings-popper,
 .dan-player {
   --el-bg-color: #141414;
   --el-bg-color-overlay: #000000e0;
@@ -13,14 +13,14 @@
   --el-border-color: #4c4d4f;
 }
 
-.el-popper.dan-settings-popper {
+.el-popper.el-popover.dan-settings-popper {
   font-size: 12px;
   border: none;
   box-shadow: var(--el-box-shadow);
   min-width: 0;
 }
 
-.el-popper.dan-settings-popper.bg-op {
+.el-popper.el-popover.dan-settings-popper.bg-op {
   background-color: transparent;
   padding: 0;
 }

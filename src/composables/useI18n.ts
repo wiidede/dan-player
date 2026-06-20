@@ -52,6 +52,8 @@ export interface I18nMessages {
   white: string
   fontColor: string
   bgOpacity: string
+  sendComment: string
+  commentPlaceholder: string
 }
 
 export type I18nLocale = 'en' | 'zh'
@@ -107,6 +109,8 @@ const en: I18nMessages = {
   white: 'White',
   fontColor: 'Font Color',
   bgOpacity: 'Bg Opacity',
+  sendComment: 'Send Comment',
+  commentPlaceholder: 'Enter a comment...',
 }
 
 const zh: I18nMessages = {
@@ -160,6 +164,8 @@ const zh: I18nMessages = {
   white: '白色',
   fontColor: '字体颜色',
   bgOpacity: '背景透明度',
+  sendComment: '发送弹幕',
+  commentPlaceholder: '输入弹幕内容...',
 }
 
 const messages: Record<I18nLocale, I18nMessages> = {

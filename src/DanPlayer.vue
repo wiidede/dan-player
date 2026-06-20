@@ -5,6 +5,7 @@ import type { ICommentCCL } from './type'
 import { reactiveOmit, useElementSize, useFullscreen, useIdle, useMediaControls, useMouseInElement, useToggle } from '@vueuse/core'
 import { ElPopover, ElSegmented, ElSlider, usePopperContainerId } from 'element-plus'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import CommentSender from './components/CommentSender.vue'
 import CommentStyle from './components/CommentStyle.vue'
 import PlayerInfoDialog from './components/PlayerInfoDialog.vue'
 import Scrubber from './components/Scrubber.vue'
@@ -29,17 +30,20 @@ const {
   comments,
   autoplayOnCommentLoad,
   additionalFunctions,
+  showCommentSender = false,
   locale = 'en',
 } = defineProps<{
   src?: string | Blob
   comments?: ICommentCCL[]
   autoplayOnCommentLoad?: boolean
   additionalFunctions?: ('loop' | 'picture-in-picture')[]
+  showCommentSender?: boolean
   locale?: I18nLocale | I18nMessages
 }>()
 
 const emit = defineEmits<{
   (e: 'onCommentLoad'): void
+  (e: 'sendComment', text: string): void
 }>()
 
 const srcUrl = computed(() => {
@@ -130,7 +134,7 @@ const subtitleOptions = computed(() => [
 ])
 
 const onCommentLoad = () => emit('onCommentLoad')
-const { showComment, toggleShowComment } = useDanmu(
+const { showComment, toggleShowComment, pushSelfComment } = useDanmu(
   () => comments,
   () => autoplayOnCommentLoad,
   onCommentLoad,
@@ -210,6 +214,10 @@ function handleFullscreen(mode: 'web' | 'native') {
   }
 }
 
+function handleSendComment(text: string) {
+  emit('sendComment', text)
+}
+
 const { keyboardShortcuts } = usePlayerKeyboard({
   playing,
   currentTime,
@@ -276,6 +284,7 @@ defineExpose({
   enableTrack,
   disableTrack,
   loop,
+  addSelfComment: pushSelfComment,
 })
 </script>
 
@@ -317,140 +326,151 @@ defineExpose({
       :class="idle ? 'op-0 translate-y-full' : ''"
     >
       <Scrubber v-model="currentTime" :max="duration" :secondary="endBuffer" :tooltip-formatter="formatDuration" />
-      <div class="flex items-center pb-2 text-white">
-        <button class="dan-btn" @mousedown.prevent @click="togglePlay()">
-          <div :class="playing ? 'i-carbon-pause' : 'i-carbon-play'" />
-        </button>
-
-        <div ref="volumeAdjustRef" class="flex items-center of-hidden">
-          <button class="dan-btn" @mousedown.prevent @click="muted = !muted">
-            <div class="scale-90" :class="muted ? 'i-carbon-volume-mute' : volume > 0.5 ? 'i-carbon-volume-up' : 'i-carbon-volume-down'" />
+      <div class="dan-player-control-bar pb-2 text-white">
+        <div class="left-controls flex items-center">
+          <button class="dan-btn" @mousedown.prevent @click="togglePlay()">
+            <div :class="playing ? 'i-carbon-pause' : 'i-carbon-play'" />
           </button>
-          <Transition name="volume-expand-right">
-            <div v-show="!hideVolumeSlider" class="w-16">
-              <ElSlider
-                v-model="volume"
-                :min="0"
-                :max="1"
-                :step="0.01"
-                :format-tooltip="volume => `${(volume * 100).toFixed(0)}%`"
-                class="!w-12"
-              />
-            </div>
-          </Transition>
-        </div>
 
-        <div class="flex items-center gap-1 text-xs text-white">
-          <span>{{ formatDuration(currentTime) }}</span>
-          <span>/</span>
-          <span>{{ formatDuration(duration) }}</span>
-        </div>
-
-        <div class="ml-auto" />
-
-        <button class="dan-btn" @mousedown.prevent @click="toggleDialog()">
-          <div class="i-carbon-information" />
-        </button>
-
-        <button class="dan-btn" @mousedown.prevent @click="toggleShowComment()">
-          <div :class="showComment ? 'i-carbon-chat-off' : 'i-carbon-chat'" />
-        </button>
-
-        <ElPopover
-          placement="top"
-          trigger="hover"
-          width="fit-content"
-          popper-class="dan-settings-popper"
-          :show-arrow="false"
-        >
-          <template #reference>
-            <button class="dan-btn" @mousedown.prevent>
-              <div i-carbon-chat-operational />
+          <div ref="volumeAdjustRef" class="flex items-center of-hidden">
+            <button class="dan-btn" @mousedown.prevent @click="muted = !muted">
+              <div class="scale-90" :class="muted ? 'i-carbon-volume-mute' : volume > 0.5 ? 'i-carbon-volume-up' : 'i-carbon-volume-down'" />
             </button>
-          </template>
-          <CommentStyle :locale="locale" />
-        </ElPopover>
-
-        <ElPopover
-          v-if="assSubtitleFiles?.length > 0"
-          placement="top"
-          trigger="hover"
-          width="fit-content"
-          popper-class="dan-settings-popper bg-op"
-          :show-arrow="false"
-        >
-          <template #reference>
-            <button class="dan-btn" @mousedown.prevent>
-              <div i-carbon-closed-caption :class="currentSubtitleIndex !== -1 ? 'text-primary-500' : ''" />
-            </button>
-          </template>
-          <ElSegmented
-            v-model="currentSubtitleIndex"
-            direction="vertical"
-            :options="subtitleOptions"
-            class="max-h-50vh overflow-auto"
-          />
-        </ElPopover>
-
-        <ElPopover
-          v-if="tracks.length > 0"
-          placement="top"
-          trigger="hover"
-          width="fit-content"
-          popper-class="dan-settings-popper"
-          :show-arrow="false"
-        >
-          <template #reference>
-            <button class="dan-btn" @mousedown.prevent>
-              <div i-carbon-closed-caption :class="selectedTrack !== -1 ? 'text-primary-500' : ''" />
-            </button>
-          </template>
-          <div class="flex gap-4">
-            <ElSegmented
-              v-model="selectedTrack"
-              direction="vertical"
-              :options="trackOptions"
-              class="max-h-50vh overflow-auto"
-              @change="onTrackChange"
-            />
-            <SubtitleStyle :locale="locale" class="h-fit" />
+            <Transition name="volume-expand-right">
+              <div v-show="!hideVolumeSlider" class="w-16">
+                <ElSlider
+                  v-model="volume"
+                  :min="0"
+                  :max="1"
+                  :step="0.01"
+                  :format-tooltip="volume => `${(volume * 100).toFixed(0)}%`"
+                  class="!w-12"
+                />
+              </div>
+            </Transition>
           </div>
-        </ElPopover>
 
-        <ElPopover
-          placement="top"
-          trigger="hover"
-          width="fit-content"
-          popper-class="dan-settings-popper bg-op"
-          :show-arrow="false"
+          <div class="flex items-center gap-1 text-xs text-white">
+            <span>{{ formatDuration(currentTime) }}</span>
+            <span>/</span>
+            <span>{{ formatDuration(duration) }}</span>
+          </div>
+        </div>
+
+        <div class="right-controls flex items-center">
+          <button class="dan-btn" @mousedown.prevent @click="toggleDialog()">
+            <div class="i-carbon-information" />
+          </button>
+
+          <button class="dan-btn" @mousedown.prevent @click="toggleShowComment()">
+            <div :class="showComment ? 'i-carbon-chat-off' : 'i-carbon-chat'" />
+          </button>
+
+          <ElPopover
+            placement="top"
+            trigger="hover"
+            width="fit-content"
+            popper-class="dan-settings-popper"
+            :show-arrow="false"
+          >
+            <template #reference>
+              <button class="dan-btn" @mousedown.prevent>
+                <div i-carbon-chat-operational />
+              </button>
+            </template>
+            <CommentStyle :locale="locale" />
+          </ElPopover>
+
+          <ElPopover
+            v-if="assSubtitleFiles?.length > 0"
+            placement="top"
+            trigger="hover"
+            width="fit-content"
+            popper-class="dan-settings-popper bg-op"
+            :show-arrow="false"
+          >
+            <template #reference>
+              <button class="dan-btn" @mousedown.prevent>
+                <div i-carbon-closed-caption :class="currentSubtitleIndex !== -1 ? 'text-primary-500' : ''" />
+              </button>
+            </template>
+            <ElSegmented
+              v-model="currentSubtitleIndex"
+              direction="vertical"
+              :options="subtitleOptions"
+              class="max-h-50vh overflow-auto"
+            />
+          </ElPopover>
+
+          <ElPopover
+            v-if="tracks.length > 0"
+            placement="top"
+            trigger="hover"
+            width="fit-content"
+            popper-class="dan-settings-popper"
+            :show-arrow="false"
+          >
+            <template #reference>
+              <button class="dan-btn" @mousedown.prevent>
+                <div i-carbon-closed-caption :class="selectedTrack !== -1 ? 'text-primary-500' : ''" />
+              </button>
+            </template>
+            <div class="flex gap-4">
+              <ElSegmented
+                v-model="selectedTrack"
+                direction="vertical"
+                :options="trackOptions"
+                class="max-h-50vh overflow-auto"
+                @change="onTrackChange"
+              />
+              <SubtitleStyle :locale="locale" class="h-fit" />
+            </div>
+          </ElPopover>
+
+          <ElPopover
+            placement="top"
+            trigger="hover"
+            width="fit-content"
+            popper-class="dan-settings-popper bg-op"
+            :show-arrow="false"
+          >
+            <template #reference>
+              <button class="dan-btn" @mousedown.prevent>
+                <div i-carbon-gears />
+              </button>
+            </template>
+            <ElSegmented
+              v-model="rate"
+              direction="vertical"
+              :options="speedOptions"
+            />
+          </ElPopover>
+
+          <button v-if="additionalFunctions?.includes('loop')" class="dan-btn" @mousedown.prevent @click="loop = !loop">
+            <div :class="loop ? 'i-carbon-repeat' : 'i-carbon-repeat opacity-50'" />
+          </button>
+
+          <button v-if="supportsPictureInPicture && additionalFunctions?.includes('picture-in-picture')" class="dan-btn" @mousedown.prevent @click="togglePictureInPicture()">
+            <div :class="isPictureInPicture ? 'i-dan-back-to-screen' : 'i-carbon-shrink-screen'" />
+          </button>
+
+          <button class="dan-btn" @mousedown.prevent @click="handleFullscreen('web')">
+            <div :class="isWebFullscreen ? 'i-dan-exit-fit-to-screen' : 'i-carbon-fit-to-screen'" />
+          </button>
+
+          <button class="dan-btn" @mousedown.prevent @click="handleFullscreen('native')">
+            <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-center-to-fit'" />
+          </button>
+        </div>
+
+        <div
+          v-if="showCommentSender"
+          class="comment-sender-area flex items-center"
         >
-          <template #reference>
-            <button class="dan-btn" @mousedown.prevent>
-              <div i-carbon-gears />
-            </button>
-          </template>
-          <ElSegmented
-            v-model="rate"
-            direction="vertical"
-            :options="speedOptions"
-          />
-        </ElPopover>
-
-        <button v-if="additionalFunctions?.includes('loop')" class="dan-btn" @mousedown.prevent @click="loop = !loop">
-          <div :class="loop ? 'i-carbon-repeat' : 'i-carbon-repeat opacity-50'" />
-        </button>
-
-        <button v-if="supportsPictureInPicture && additionalFunctions?.includes('picture-in-picture')" class="dan-btn" @mousedown.prevent @click="togglePictureInPicture()">
-          <div :class="isPictureInPicture ? 'i-dan-back-to-screen' : 'i-carbon-shrink-screen'" />
-        </button>
-
-        <button class="dan-btn" @mousedown.prevent @click="handleFullscreen('web')">
-          <div :class="isWebFullscreen ? 'i-dan-exit-fit-to-screen' : 'i-carbon-fit-to-screen'" />
-        </button>
-
-        <button class="dan-btn" @mousedown.prevent @click="handleFullscreen('native')">
-          <div :class="isFullscreen ? 'i-dan-fit-size' : 'i-carbon-center-to-fit'" />
-        </button>
+          <slot name="comment-sender" :send="handleSendComment" :locale="locale">
+            <CommentSender :locale="locale" @send="handleSendComment" />
+          </slot>
+        </div>
       </div>
     </div>
 

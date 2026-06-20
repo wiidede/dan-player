@@ -48,6 +48,9 @@ export function useDanmu(
   const { commentHeight, commentSpeed, commentSize, showComment, commentOffset, commentLimit, commentMode } = usePreference()
   const toggleShowComment = useToggle(showComment)
 
+  let pushSelfCommentImpl: ((text: string) => void) | undefined
+  const pushSelfComment = (text: string) => pushSelfCommentImpl?.(text)
+
   function getTrackHeight() {
     return Math.round(commentSize.value * 1.2)
   }
@@ -78,7 +81,9 @@ export function useDanmu(
       plugin: {
         $createNode(danmaku, node) {
           node.textContent = danmaku.data.text
-          node.className = 'danmaku-comment'
+          node.className = danmaku.data.self
+            ? 'danmaku-comment danmaku-comment-self'
+            : 'danmaku-comment'
           const { color } = danmaku.data
           if (color !== 0xFFFFFF) {
             node.style.color = toHexColor(color)
@@ -92,6 +97,20 @@ export function useDanmu(
 
     function getTimeMs() {
       return Math.round((currentTime.value + (commentOffset.value || 0)) * 1000)
+    }
+
+    pushSelfCommentImpl = (text: string) => {
+      if (!showComment.value)
+        return
+      const cmt: ICommentCCL = {
+        text,
+        stime: getTimeMs(),
+        color: 0xFFFFFF,
+        mode: 1,
+        size: commentSize.value,
+        self: true,
+      }
+      pushComment(cmt)
     }
 
     function startDanmu() {
@@ -250,6 +269,7 @@ export function useDanmu(
     }))
 
     onCleanup(() => {
+      pushSelfCommentImpl = undefined
       stops.forEach(stop => stop())
       manager.stopPlaying()
       manager.unmount()
@@ -258,6 +278,7 @@ export function useDanmu(
 
   return {
     toggleShowComment,
+    pushSelfComment,
     commentHeight,
     commentSpeed,
     showComment,

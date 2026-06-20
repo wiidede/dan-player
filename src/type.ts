@@ -4,6 +4,7 @@ export interface ICommentCCL {
   color: number
   mode: number
   size: number
+  self?: boolean
 }
 
 export interface Preference {

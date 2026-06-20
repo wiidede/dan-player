@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DanPlayer } from '@wiidede/dan-player'
 import type { ICommentCCL } from '../../src/type'
 import { useDark, useToggle } from '@vueuse/core'
 import { ref } from 'vue'
@@ -9,8 +10,14 @@ const toggleDark = useToggle(isDark)
 
 const src = ref<Blob>()
 const comments = ref<ICommentCCL[]>()
+const playerRef = ref<InstanceType<typeof DanPlayer>>()
 
 const locale = ref<'zh' | 'en'>('zh')
+
+async function handleSendComment(text: string) {
+  await new Promise(resolve => setTimeout(resolve, 300))
+  playerRef.value?.addSelfComment(text)
+}
 
 function handleFileUpload(event: Event) {
   const input = event.target as HTMLInputElement
@@ -52,7 +59,15 @@ setTimeout(() => {
           >
         </label>
       </div>
-      <DanPlayer :src="src" :comments="comments" autoplay-on-comment-load :locale="locale" />
+      <DanPlayer
+        ref="playerRef"
+        :src="src"
+        :comments="comments"
+        autoplay-on-comment-load
+        :locale="locale"
+        show-comment-sender
+        @send-comment="handleSendComment"
+      />
     </div>
     <div class="flex gap-2 py-2">
       <button class="btn" @click="locale = 'zh'">

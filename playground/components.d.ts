@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CommentSender: typeof import('./../src/components/CommentSender.vue')['default']
     CommentStyle: typeof import('./../src/components/CommentStyle.vue')['default']
     DanPlayer: typeof import('@wiidede/dan-player')['DanPlayer']
     ElDialog: typeof import('element-plus/es')['ElDialog']

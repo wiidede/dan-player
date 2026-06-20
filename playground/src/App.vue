@@ -43,7 +43,7 @@ setTimeout(() => {
 </script>
 
 <template>
-  <main class="m-auto prose">
+  <main class="m-auto prose dark:prose-invert">
     <div class="flex items-center">
       <img src="/favicon.svg" alt="Dan Player Logo" width="100px" height="100px">
       <h1 class="m-0 text-4xl font-serif dark:text-zinc-50">
@@ -93,7 +93,7 @@ setTimeout(() => {
       </button>
     </div>
   </main>
-  <footer class="m-auto mt4 prose">
+  <footer class="m-auto mt4 prose dark:prose-invert">
     <div class="flex gap4">
       <a href="https://github.com/wiidede/dan-player" target="_blank">GitHub</a>
       <a href="https://github.com/wiidede/dan-player/blob/main/playground/src/App.vue" target="_blank">Demo Source</a>

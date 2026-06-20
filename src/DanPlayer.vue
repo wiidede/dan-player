@@ -13,6 +13,7 @@ import SubtitleStyle from './components/SubtitleStyle.vue'
 import { useAss } from './composables/ass'
 import { useMkvExtractWorker } from './composables/mkvExtract'
 import { useDanmu } from './composables/useDanmu'
+import { useDelayedBoolean } from './composables/useDelayedBoolean'
 import { useI18n } from './composables/useI18n'
 import { usePlayerKeyboard } from './composables/usePlayerKeyboard'
 import { speedOptions } from './constants/player'
@@ -155,6 +156,7 @@ const idle = computed(() => systemIdle.value && playing.value)
 
 const volumeAdjustRef = ref<HTMLElement>()
 const { isOutside: hideVolumeSlider } = useMouseInElement(volumeAdjustRef)
+const showCommentSenderDelayed = useDelayedBoolean(hideVolumeSlider, { delayOnTrue: 400 })
 
 const endBuffer = computed(() => buffered.value.length > 0 ? buffered.value[buffered.value.length - 1][1] : 0)
 
@@ -465,6 +467,7 @@ defineExpose({
 
         <div
           v-if="showCommentSender"
+          v-show="showCommentSenderDelayed"
           class="comment-sender-area flex items-center"
         >
           <slot name="comment-sender" :send="handleSendComment" :locale="locale">

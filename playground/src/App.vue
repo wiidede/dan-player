@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import type { DanPlayer } from '@wiidede/dan-player'
 import type { ICommentCCL } from '../../src/type'
-import { useDark, useToggle } from '@vueuse/core'
+import { useCssVar, useDark, useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import { demoComments } from './demo-comments'
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
+const primaryColor = useCssVar('--el-color-primary', document.body)
+
 const src = ref<Blob>()
 const comments = ref<ICommentCCL[]>()
 const playerRef = ref<InstanceType<typeof DanPlayer>>()
 
 const locale = ref<'zh' | 'en'>('zh')
+const colors = ['#409eff', '#ff99c8'] as const
 
 async function handleSendComment(text: string) {
   await new Promise(resolve => setTimeout(resolve, 300))
@@ -43,7 +46,7 @@ setTimeout(() => {
   <main class="m-auto prose">
     <div class="flex items-center">
       <img src="/favicon.svg" alt="Dan Player Logo" width="100px" height="100px">
-      <h1 class="text-4xl font-serif dark:text-zinc-50">
+      <h1 class="m-0 text-4xl font-serif dark:text-zinc-50">
         Dan Player
       </h1>
     </div>
@@ -76,12 +79,21 @@ setTimeout(() => {
       <button class="btn" @click="locale = 'en'">
         English
       </button>
+      <button
+        v-for="color in colors"
+        :key="color"
+        class="btn"
+        :style="{ color }"
+        @click="primaryColor = color"
+      >
+        {{ color }}
+      </button>
+      <button class="btn" title="toggle dark mode" @click="toggleDark()">
+        <div i="carbon-sun dark:carbon-moon" />
+      </button>
     </div>
   </main>
   <footer class="m-auto mt4 prose">
-    <button class="mb-2 btn" title="toggle dark mode" @click="toggleDark()">
-      <div i="carbon-sun dark:carbon-moon" />
-    </button>
     <div class="flex gap4">
       <a href="https://github.com/wiidede/dan-player" target="_blank">GitHub</a>
       <a href="https://github.com/wiidede/dan-player/blob/main/playground/src/App.vue" target="_blank">Demo Source</a>

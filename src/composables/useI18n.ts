@@ -109,8 +109,8 @@ const en: I18nMessages = {
   white: 'White',
   fontColor: 'Font Color',
   bgOpacity: 'Bg Opacity',
-  sendComment: 'Send Comment',
-  commentPlaceholder: 'Enter a comment...',
+  sendComment: 'Send',
+  commentPlaceholder: 'Write a comment...',
 }
 
 const zh: I18nMessages = {

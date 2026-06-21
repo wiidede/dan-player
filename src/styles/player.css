@@ -158,6 +158,7 @@
 
 .dan-player .comment-sender-area {
   order: 2;
+  max-width: 32rem;
   flex: 1 0 16rem;
   padding-left: 1rem;
   padding-right: 1rem;

@@ -4,7 +4,7 @@ import {
   presetAttributify,
   presetIcons,
   presetTypography,
-  presetUno,
+  presetWind3,
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
@@ -20,7 +20,7 @@ export default defineConfig(defu({
     ['btn', 'b-0 cursor-pointer rd px-4 py-2 bg-zinc-100 dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors'],
   ],
   presets: [
-    presetUno(),
+    presetWind3(),
     presetAttributify(),
     presetIcons({
       scale: 1.2,

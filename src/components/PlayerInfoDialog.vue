@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { I18nLocale, I18nMessages } from '../composables/useI18n'
+import { ElDialog } from 'element-plus'
 import { version } from '../../package.json'
 import { useI18n } from '../composables/useI18n'
+import 'element-plus/theme-chalk/el-dialog.css'
 
 const { locale, videoInfo, keyboardShortcuts } = defineProps<{
   locale?: I18nLocale | I18nMessages

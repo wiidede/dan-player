@@ -33,6 +33,7 @@ export interface I18nMessages {
   muteUnmute: string
   speedDown: string
   speedUp: string
+  fastForwarding?: string
   // Comment Style additional translations
   notTransparent: string
   displayArea: string
@@ -90,6 +91,7 @@ const en: I18nMessages = {
   muteUnmute: 'Mute/Unmute',
   speedDown: 'Speed -0.25x',
   speedUp: 'Speed +0.25x',
+  fastForwarding: '{rate} fast forwarding',
   // Comment Style additional translations
   notTransparent: 'Opacity',
   displayArea: 'Display Area',
@@ -145,6 +147,7 @@ const zh: I18nMessages = {
   muteUnmute: '静音/取消静音',
   speedDown: '速度 -0.25x',
   speedUp: '速度 +0.25x',
+  fastForwarding: '{rate}快进中',
   // Comment Style additional translations
   notTransparent: '不透明度',
   displayArea: '显示区域',

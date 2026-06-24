@@ -178,24 +178,37 @@ function formatDuration(seconds: number) {
   return new Date(1000 * seconds).toISOString().slice(14, 19)
 }
 
-// Toast state
+const DEFAULT_TOAST_DURATION = 1500
+
 const toast = reactive({
   visible: false,
   message: '',
-  timer: null as NodeJS.Timeout | null,
+  timer: null as ReturnType<typeof setTimeout> | null,
 })
 
-function showToast(message: string) {
-  if (toast.timer)
+function hideToast() {
+  if (toast.timer) {
     clearTimeout(toast.timer)
+    toast.timer = null
+  }
+
+  toast.visible = false
+  toast.message = ''
+}
+
+function showToast(message: string, duration = DEFAULT_TOAST_DURATION) {
+  if (toast.timer) {
+    clearTimeout(toast.timer)
+    toast.timer = null
+  }
 
   toast.message = message
   toast.visible = true
 
-  toast.timer = setTimeout(() => {
-    toast.visible = false
-    toast.message = ''
-  }, 1500)
+  if (duration <= 0)
+    return
+
+  toast.timer = setTimeout(hideToast, duration)
 }
 
 const { t } = useI18n(() => locale ?? 'en')
@@ -219,6 +232,18 @@ function handleSendComment(text: string) {
   emit('sendComment', text)
 }
 
+function handlePlayerWheel(event: WheelEvent) {
+  if (!isFullscreen.value && !isWebFullscreen.value)
+    return
+
+  event.preventDefault()
+
+  const volumeStep = event.deltaY < 0 ? 0.05 : -0.05
+  volume.value = Math.min(1, Math.max(0, volume.value + volumeStep))
+  muted.value = volume.value === 0
+  showToast(`${t.value.volume}: ${Math.round(volume.value * 100)}%`)
+}
+
 const { keyboardShortcuts } = usePlayerKeyboard({
   playing,
   currentTime,
@@ -233,6 +258,7 @@ const { keyboardShortcuts } = usePlayerKeyboard({
   toggleWebFullscreen,
   handleFullscreen,
   showToast,
+  hideToast,
   t,
 })
 
@@ -294,6 +320,7 @@ defineExpose({
     ref="videoContainerRef"
     class="dan-player relative flex-center overflow-hidden bg-black"
     :class="{ 'cursor-none': idle, 'web-fullscreen': isWebFullscreen }"
+    @wheel="handlePlayerWheel"
   >
     <video
       ref="videoRef"

@@ -1,8 +1,11 @@
 import type { ComputedRef, Ref } from 'vue'
 import type { I18nMessages } from './useI18n'
-import { useActiveElement, useMagicKeys, whenever } from '@vueuse/core'
+import { useActiveElement, useEventListener, useMagicKeys, whenever } from '@vueuse/core'
 import { logicAnd } from '@vueuse/math'
 import { computed } from 'vue'
+
+const FAST_FORWARD_RATE = 3
+const QUICK_RATE_KEYS = ['1', '2', '3'] as const
 
 interface ShortcutDef {
   label: string
@@ -24,7 +27,8 @@ export interface UsePlayerKeyboardOptions {
   togglePictureInPicture: () => Promise<void | PictureInPictureWindow>
   toggleWebFullscreen: (value?: boolean) => boolean
   handleFullscreen: (mode: 'web' | 'native') => void
-  showToast: (message: string) => void
+  showToast: (message: string, duration?: number) => void
+  hideToast: () => void
   t: ComputedRef<I18nMessages>
 }
 
@@ -43,6 +47,7 @@ export function usePlayerKeyboard(options: UsePlayerKeyboardOptions) {
     toggleWebFullscreen,
     handleFullscreen,
     showToast,
+    hideToast,
     t,
   } = options
 
@@ -51,7 +56,6 @@ export function usePlayerKeyboard(options: UsePlayerKeyboardOptions) {
     arrowUp,
     arrowDown,
     arrowLeft,
-    arrowRight,
     m,
     f,
     w,
@@ -85,15 +89,6 @@ export function usePlayerKeyboard(options: UsePlayerKeyboardOptions) {
       action: () => {
         currentTime.value -= 5
         showToast(t.value.backward)
-      },
-    },
-    {
-      label: '→',
-      keys: arrowRight,
-      description: () => t.value.forward,
-      action: () => {
-        currentTime.value += 5
-        showToast(t.value.forward)
       },
     },
     {
@@ -170,6 +165,77 @@ export function usePlayerKeyboard(options: UsePlayerKeyboardOptions) {
     whenever(logicAnd(keys, notUsingInput), action)
   })
 
+  let arrowRightPressed = false
+  let fastForwarding = false
+  let rateBeforeFastForward: number | undefined
+
+  function formatFastForwardingMessage() {
+    return (t.value.fastForwarding ?? '{rate} fast forwarding').replace('{rate}', `${FAST_FORWARD_RATE}x`)
+  }
+
+  function startFastForward() {
+    if (!arrowRightPressed || fastForwarding)
+      return
+
+    rateBeforeFastForward = rate.value
+    rate.value = FAST_FORWARD_RATE
+    fastForwarding = true
+    showToast(formatFastForwardingMessage(), 0)
+  }
+
+  function stopFastForward() {
+    arrowRightPressed = false
+
+    if (!fastForwarding)
+      return false
+
+    rate.value = rateBeforeFastForward ?? 1
+    fastForwarding = false
+    rateBeforeFastForward = undefined
+    hideToast()
+    return true
+  }
+
+  useEventListener(window, 'keydown', (event: KeyboardEvent) => {
+    if (event.key !== 'ArrowRight' || !notUsingInput.value)
+      return
+
+    event.preventDefault()
+
+    if (event.repeat) {
+      startFastForward()
+      return
+    }
+
+    arrowRightPressed = true
+  })
+
+  useEventListener(window, 'keyup', (event: KeyboardEvent) => {
+    if (event.key !== 'ArrowRight' || !arrowRightPressed)
+      return
+
+    event.preventDefault()
+
+    if (stopFastForward())
+      return
+
+    currentTime.value += 5
+    showToast(t.value.forward)
+  })
+
+  useEventListener(window, 'blur', () => {
+    stopFastForward()
+  })
+
+  useEventListener(window, 'keydown', (event: KeyboardEvent) => {
+    if (!QUICK_RATE_KEYS.includes(event.key as typeof QUICK_RATE_KEYS[number]) || !notUsingInput.value || event.repeat)
+      return
+
+    event.preventDefault()
+    rate.value = Number(event.key)
+    showToast(`${t.value.speed}: ${rate.value}x`)
+  })
+
   whenever(logicAnd(escape, notUsingInput), () => {
     if (isWebFullscreen.value) {
       toggleWebFullscreen()
@@ -177,7 +243,12 @@ export function usePlayerKeyboard(options: UsePlayerKeyboardOptions) {
     }
   })
 
-  const keyboardShortcuts = computed(() => shortcuts.map(({ label, description }) => ({ key: label, description: description() })))
+  const keyboardShortcuts = computed(() => [
+    ...shortcuts.map(({ label, description }) => ({ key: label, description: description() })),
+    { key: '→', description: t.value.forward },
+    { key: 'Long press →', description: formatFastForwardingMessage() },
+    ...QUICK_RATE_KEYS.map(key => ({ key, description: `${t.value.speed}: ${key}x` })),
+  ])
 
   return {
     keyboardShortcuts,
